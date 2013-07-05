@@ -1,5 +1,5 @@
-var Int64 = require('int64-native'),
-    chai = require('/Users/candu/git/travel-site/web/node_modules/chai'),
+var Int64 = require('../int64'),
+    chai = require('chai'),
     expect = chai.expect;
 
 describe('Int64', function testInt64() {
