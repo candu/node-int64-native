@@ -23,6 +23,8 @@ class Int64 : public ObjectWrap {
   static Handle<Value> ToNumber(const Arguments& args);
   static Handle<Value> ValueOf(const Arguments& args);
   static Handle<Value> ToString(const Arguments& args);
+  static Handle<Value> ToUnsignedDecimalString(const Arguments& args);
+  static Handle<Value> ToSignedDecimalString(const Arguments& args);
   static Handle<Value> Equals(const Arguments& args);
   static Handle<Value> Compare(const Arguments& args);
   static Handle<Value> High32(const Arguments& args);

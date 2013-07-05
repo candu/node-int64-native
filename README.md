@@ -5,7 +5,7 @@ use of 64-bit unsigned integers from node.
 
 ## Why?
 
-`int64-native` was originally developed to support reasonable handling of 
+`int64-native` was originally developed to support reasonable handling of
 64-bit ID columns in databases. There are other 64-bit integer modules out
 there, but AFAICT all of them are pure JavaScript; native `uint64_t` seemed
 like a better way to handle this!
@@ -78,6 +78,14 @@ they cannot be accurately represented using JavaScript's `Number` type.
 
 As you can see from the examples so far, `toString()` produces the hex string
 corresponding to an `Int64`.
+
+### Conversion to Decimal String
+
+`Int64` also exposes `toSignedDecimalString()` and `toUnsignedDecimalString()` for converting to decimal strings:
+
+    var minusOne = new Int64('FFFFFFFFFFFFFFFF');
+    expect(minusOne.toSignedDecimalString()).to.equal('-1');
+    expect(minusOne.toUnsignedDecimalString()).to.equal('18446744073709551615');
 
 ### Comparison
 

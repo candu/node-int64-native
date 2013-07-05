@@ -54,4 +54,13 @@ describe('Int64', function testInt64() {
     expect(b.toString()).to.equal('000000000000000e');
     expect(c.toString()).to.equal('0000000000000003');
   });
+
+  it('can be converted to a decimal string', function testDecimalString() {
+    var positive = new Int64('52B7C3F99AD1C63');
+    expect(positive.toUnsignedDecimalString()).to.equal('372528006791240803');
+
+    var minusOne = new Int64('FFFFFFFFFFFFFFFF');
+    expect(minusOne.toSignedDecimalString()).to.equal('-1');
+    expect(minusOne.toUnsignedDecimalString()).to.equal('18446744073709551615');
+  });
 });
