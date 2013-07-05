@@ -6,6 +6,7 @@
 #include <v8.h>
 
 #include <limits>
+#include <sstream>
 
 #include "Int64.h"
 
@@ -30,6 +31,14 @@ void Int64::Init(Handle<Object> exports) {
   tpl->PrototypeTemplate()->Set(
     String::NewSymbol("toString"),
     FunctionTemplate::New(ToString)->GetFunction()
+  );
+  tpl->PrototypeTemplate()->Set(
+    String::NewSymbol("toUnsignedDecimalString"),
+    FunctionTemplate::New(ToUnsignedDecimalString)->GetFunction()
+  );
+  tpl->PrototypeTemplate()->Set(
+    String::NewSymbol("toSignedDecimalString"),
+    FunctionTemplate::New(ToSignedDecimalString)->GetFunction()
   );
   tpl->PrototypeTemplate()->Set(
     String::NewSymbol("equals"),
@@ -161,6 +170,24 @@ Handle<Value> Int64::ToString(const Arguments& args) {
     value >>= 4;
   }
   return scope.Close(String::New(buf));
+}
+
+Handle<Value> Int64::ToUnsignedDecimalString(const Arguments& args) {
+  HandleScope scope;
+  Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
+
+  std::ostringstream o;
+  o << obj->mValue;
+  return scope.Close(String::New(o.str().c_str()));
+}
+
+Handle<Value> Int64::ToSignedDecimalString(const Arguments& args) {
+  HandleScope scope;
+  Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
+
+  std::ostringstream o;
+  o << (static_cast<int64_t>(obj->mValue));
+  return scope.Close(String::New(o.str().c_str()));
 }
 
 Handle<Value> Int64::Equals(const Arguments& args) {
