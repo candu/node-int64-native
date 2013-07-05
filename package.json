@@ -13,7 +13,7 @@
     "email": "savage.evan@gmail.com",
     "url": "https://github.com/candu"
   },
-  "main": "Int64",
+  "main": "int64",
   "scripts": {
     "install": "node-gyp configure && node-gyp build",
     "test": "npm install && mocha"
