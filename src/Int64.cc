@@ -5,6 +5,7 @@
 #include <node.h>
 #include <v8.h>
 
+#include <iomanip>
 #include <limits>
 #include <sstream>
 
@@ -98,20 +99,14 @@ Int64::Int64(const Local<Number>& hi, const Local<Number>& lo) {
 
 Int64::Int64(const Local<String>& s) {
   String::Utf8Value utf8(s);
-  mValue = 0ull;
-  for (int i = 0; i < utf8.length(); i++) {
-    mValue <<= 4;
-    char c = (*utf8)[i];
-    if (c >= '0' && c <= '9') {
-      mValue += (c - '0');
-    } else if (c >= 'a' && c <= 'f') {
-      mValue += 10 + (c - 'a');
-    } else if (c >= 'A' && c <= 'F') {
-      mValue += 10 + (c - 'A');
-    } else {
-      ThrowException(Exception::TypeError(String::New("Invalid string")));
-    }
+  stringstream ss;
+  char* ps = *utf8;
+  if (utf8.length() > 2 && ps[0] == '0' && ps[1] == 'x') {
+    ss << hex << (ps + 2);
+  } else {
+    ss << ps;
   }
+  ss >> mValue;
 }
 
 Int64::~Int64() {}
@@ -157,19 +152,10 @@ Handle<Value> Int64::ValueOf(const Arguments& args) {
 Handle<Value> Int64::ToString(const Arguments& args) {
   HandleScope scope;
   Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
-  char buf[17];
-  buf[16] = '\0';
-  uint64_t value = obj->mValue;
-  for (int i = 15; i >= 0; i--) {
-    uint64_t next = value & 0xfull;
-    if (next <= 0x9ull) {
-      buf[i] = '0' + next;
-    } else {
-      buf[i] = 'a' + (next - 10);
-    }
-    value >>= 4;
-  }
-  return scope.Close(String::New(buf));
+  
+  std::ostringstream o;
+  o << "0x" << hex << setfill('0') << setw(16) << obj->mValue;
+  return scope.Close(String::New(o.str().c_str()));
 }
 
 Handle<Value> Int64::ToUnsignedDecimalString(const Arguments& args) {
