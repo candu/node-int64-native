@@ -48,11 +48,11 @@ You can create an `Int64` as follows:
     var x = new Int64(),
         y = new Int64(42),
         z = new Int64(0xfedcba98, 0x76543210),
-        w = new Int64('fedcba9876543210')
-    expect(x.toString()).to.equal('0000000000000000');
-    expect(y.toString()).to.equal('000000000000002a');
-    expect(z.toString()).to.equal('fedcba9876543210');
-    expect(w.toString()).to.equal('fedcba9876543210');
+        w = new Int64('0xfedcba9876543210')
+    expect(x.toString()).to.equal('0x0000000000000000');
+    expect(y.toString()).to.equal('0x000000000000002a');
+    expect(z.toString()).to.equal('0xfedcba9876543210');
+    expect(w.toString()).to.equal('0xfedcba9876543210');
 
 The last two methods allow you to represent `uint64_t` values larger than
 `(1 << 53) - 1`.
@@ -67,7 +67,7 @@ The last two methods allow you to represent `uint64_t` values larger than
     var x = new Int64(),
         y = new Int64(42),
         z = new Int64(0xfedcba98, 0x76543210),
-        w = new Int64('fedcba9876543210')
+        w = new Int64('0xfedcba9876543210')
     expect(+x).to.equal(0);
     expect(+y).to.equal(42);
     expect(+z).to.equal(Infinity);
@@ -83,7 +83,7 @@ corresponding to an `Int64`.
 
 `Int64` also exposes `toSignedDecimalString()` and `toUnsignedDecimalString()` for converting to decimal strings:
 
-    var minusOne = new Int64('FFFFFFFFFFFFFFFF');
+    var minusOne = new Int64('0xFFFFFFFFFFFFFFFF');
     expect(minusOne.toSignedDecimalString()).to.equal('-1');
     expect(minusOne.toUnsignedDecimalString()).to.equal('18446744073709551615');
 
@@ -104,17 +104,17 @@ For cases where you wish to sort or compare `Int64` values, `equals()` and
 
 There are several operations for bit-level manipulation of `Int64` values:
 
-    var x = new Int64('fedcba9876543210');
+    var x = new Int64('0xfedcba9876543210');
     expect(x.high32().toString(16)).to.equal('fedcba98');
     expect(x.low32().toString(16)).to.equal('76543210');
     var y = x.and(new Int64(0xffff)),
         z = x.or(new Int64(0xffff)),
         w = x.xor(new Int64('fffffffffffffffff'));
-    expect(y.toString()).to.equal('0000000000003210');
-    expect(z.toString()).to.equal('fedcba987654ffff');
-    expect(w.toString()).to.equal('0123456789abcdef');
+    expect(y.toString()).to.equal('0x0000000000003210');
+    expect(z.toString()).to.equal('0xfedcba987654ffff');
+    expect(w.toString()).to.equal('0x0123456789abcdef');
     var a = new Int64(7),
         b = a.shiftLeft(1),
         c = a.shiftRight(1);
-    expect(b.toString()).to.equal('000000000000000e');
-    expect(c.toString()).to.equal('0000000000000003');
+    expect(b.toString()).to.equal('0x000000000000000e');
+    expect(c.toString()).to.equal('0x0000000000000003');
