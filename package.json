@@ -1,6 +1,6 @@
 {
   "name": "int64-native",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A simple uint64_t wrapper for JavaScript",
   "keywords": [
     "types",
