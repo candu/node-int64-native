@@ -7,11 +7,13 @@ describe('Int64', function testInt64() {
     var x = new Int64(),
         y = new Int64(42),
         z = new Int64(0xfedcba98, 0x76543210),
-        w = new Int64('0xfedcba9876543210')
+        w = new Int64('0xfedcba9876543210'),
+        r = new Int64('372528006791240803');
     expect(x.toString()).to.equal('0x0000000000000000');
     expect(y.toString()).to.equal('0x000000000000002a');
     expect(z.toString()).to.equal('0xfedcba9876543210');
     expect(w.toString()).to.equal('0xfedcba9876543210');
+    expect(r.toString()).to.equal('0x052b7c3f99ad1c63');
   });
 
   it('can be converted to Number', function testNumberConversion() {
@@ -67,5 +69,9 @@ describe('Int64', function testInt64() {
     var jsOverflow = new Int64('0x002fffffffffffff');
     expect(jsOverflow.toSignedDecimalString()).to.equal('13510798882111487');
     expect(jsOverflow.toUnsignedDecimalString()).to.equal('13510798882111487');
+
+    var decimal = new Int64('13510798882111487');
+    expect(decimal.toSignedDecimalString()).to.equal('13510798882111487');
+    expect(decimal.toUnsignedDecimalString()).to.equal('13510798882111487');
   });
 });
