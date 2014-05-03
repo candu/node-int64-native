@@ -286,7 +286,7 @@ Handle<Value> Int64::And(const Arguments& args) {
   Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
   uint64_t value;
   if (args[0]->IsNumber()) {
-    value = obj->mValue & args[0]->Int32Value();
+    value = obj->mValue & args[0]->IntegerValue();
   } else if (args[0]->IsObject()) {
     Int64* otherObj = ObjectWrap::Unwrap<Int64>(args[0]->ToObject());
     value = obj->mValue & otherObj->mValue;
@@ -311,7 +311,7 @@ Handle<Value> Int64::Or(const Arguments& args) {
   Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
   uint64_t value;
   if (args[0]->IsNumber()) {
-    value = obj->mValue | args[0]->Int32Value();
+    value = obj->mValue | args[0]->IntegerValue();
   } else if (args[0]->IsObject()) {
     Int64* otherObj = ObjectWrap::Unwrap<Int64>(args[0]->ToObject());
     value = obj->mValue | otherObj->mValue;
@@ -336,7 +336,7 @@ Handle<Value> Int64::Xor(const Arguments& args) {
   Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
   uint64_t value;
   if (args[0]->IsNumber()) {
-    value = obj->mValue ^ args[0]->Int32Value();
+    value = obj->mValue ^ args[0]->IntegerValue();
   } else if (args[0]->IsObject()) {
     Int64* otherObj = ObjectWrap::Unwrap<Int64>(args[0]->ToObject());
     value = obj->mValue ^ otherObj->mValue;
@@ -361,7 +361,7 @@ Handle<Value> Int64::Add(const Arguments& args) {
   Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
   uint64_t value;
   if (args[0]->IsNumber()) {
-    value = obj->mValue + args[0]->Int32Value();
+    value = obj->mValue + args[0]->IntegerValue();
   } else if (args[0]->IsObject()) {
     Int64* otherObj = ObjectWrap::Unwrap<Int64>(args[0]->ToObject());
     value = obj->mValue + otherObj->mValue;
@@ -386,7 +386,7 @@ Handle<Value> Int64::Sub(const Arguments& args) {
   Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
   uint64_t value;
   if (args[0]->IsNumber()) {
-    value = obj->mValue - args[0]->Int32Value();
+    value = obj->mValue - args[0]->IntegerValue();
   } else if (args[0]->IsObject()) {
     Int64* otherObj = ObjectWrap::Unwrap<Int64>(args[0]->ToObject());
     value = obj->mValue - otherObj->mValue;

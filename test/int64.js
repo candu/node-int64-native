@@ -53,6 +53,9 @@ describe('Int64', function testInt64() {
     expect(x.and(0xffff).toString()).to.equal('0x0000000000003210');
     expect(x.or(0xffff).toString()).to.equal('0xfedcba987654ffff');
     expect(x.xor(0xffff).toString()).to.equal('0xfedcba987654cdef');
+    expect(x.and(0x1ffffffff).toString()).to.equal('0x0000000076543210');
+    expect(x.or(0x1ffffffff).toString()).to.equal('0xfedcba99ffffffff');
+    expect(x.xor(0x1ffffffff).toString()).to.equal('0xfedcba9989abcdef');
     var a = new Int64(7),
         b = a.shiftLeft(1),
         c = a.shiftRight(1);
@@ -80,17 +83,29 @@ describe('Int64', function testInt64() {
 
   it('can be added', function testAdd() {
     var a = new Int64(3),
-        b = new Int64(2);
+        b = new Int64(2),
+        c = new Int64('0xfffffffffffffffe');
     expect(a.add(b).equals(new Int64(5))).to.be.true;
     expect(a.add(4).equals(new Int64(7))).to.be.true;
+
+    // unsigned integer overflow
+    expect(c.add(3).equals(new Int64(1))).to.be.true;
+
+    // numbers larger than int32
+    expect(a.add(0x100000000).toString()).to.equal('0x0000000100000003');
   });
 
   it('can be subtracted', function testSub() {
     var a = new Int64(3),
-        b = new Int64(2);
+        b = new Int64(2),
+        c = new Int64('0xffffffffffffffff');
     expect(a.sub(b).equals(new Int64(1))).to.be.true;
     expect(a.sub(1).equals(new Int64(2))).to.be.true;
 
+    // unsigned integer underflow
     expect(a.sub(4).equals(new Int64('0xffffffffffffffff'))).to.be.true;
+
+    // numbers larger than int32
+    expect(c.sub(0x100000000).toString()).to.equal('0xfffffffeffffffff');
   });
 });
