@@ -34,6 +34,8 @@ class Int64 : public ObjectWrap {
   static Handle<Value> And(const Arguments& args);
   static Handle<Value> Or(const Arguments& args);
   static Handle<Value> Xor(const Arguments& args);
+  static Handle<Value> Add(const Arguments& args);
+  static Handle<Value> Sub(const Arguments& args);
 
   uint64_t mValue;
 };
