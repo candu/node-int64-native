@@ -283,13 +283,17 @@ Handle<Value> Int64::And(const Arguments& args) {
     ThrowException(Exception::TypeError(String::New("Argument required")));
     return scope.Close(Undefined());
   }
-  if (!args[0]->IsObject()) {
-    ThrowException(Exception::TypeError(String::New("Object expected")));
+  Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
+  uint64_t value;
+  if (args[0]->IsNumber()) {
+    value = obj->mValue & args[0]->Int32Value();
+  } else if (args[0]->IsObject()) {
+    Int64* otherObj = ObjectWrap::Unwrap<Int64>(args[0]->ToObject());
+    value = obj->mValue & otherObj->mValue;
+  } else {
+    ThrowException(Exception::TypeError(String::New("Object or number expected")));
     return scope.Close(Undefined());
   }
-  Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
-  Int64* otherObj = ObjectWrap::Unwrap<Int64>(args[0]->ToObject());
-  uint64_t value = obj->mValue & otherObj->mValue;
   Local<Value> argv[2] = {
     Int32::NewFromUnsigned(static_cast<uint32_t>(value >> 32)),
     Int32::NewFromUnsigned(static_cast<uint32_t>(value & 0xffffffffull))
@@ -304,13 +308,17 @@ Handle<Value> Int64::Or(const Arguments& args) {
     ThrowException(Exception::TypeError(String::New("Argument required")));
     return scope.Close(Undefined());
   }
-  if (!args[0]->IsObject()) {
-    ThrowException(Exception::TypeError(String::New("Object expected")));
+  Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
+  uint64_t value;
+  if (args[0]->IsNumber()) {
+    value = obj->mValue | args[0]->Int32Value();
+  } else if (args[0]->IsObject()) {
+    Int64* otherObj = ObjectWrap::Unwrap<Int64>(args[0]->ToObject());
+    value = obj->mValue | otherObj->mValue;
+  } else {
+    ThrowException(Exception::TypeError(String::New("Object or number expected")));
     return scope.Close(Undefined());
   }
-  Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
-  Int64* otherObj = ObjectWrap::Unwrap<Int64>(args[0]->ToObject());
-  uint64_t value = obj->mValue | otherObj->mValue;
   Local<Value> argv[2] = {
     Int32::NewFromUnsigned(static_cast<uint32_t>(value >> 32)),
     Int32::NewFromUnsigned(static_cast<uint32_t>(value & 0xffffffffull))
@@ -325,13 +333,17 @@ Handle<Value> Int64::Xor(const Arguments& args) {
     ThrowException(Exception::TypeError(String::New("Argument required")));
     return scope.Close(Undefined());
   }
-  if (!args[0]->IsObject()) {
-    ThrowException(Exception::TypeError(String::New("Object expected")));
+  Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
+  uint64_t value;
+  if (args[0]->IsNumber()) {
+    value = obj->mValue ^ args[0]->Int32Value();
+  } else if (args[0]->IsObject()) {
+    Int64* otherObj = ObjectWrap::Unwrap<Int64>(args[0]->ToObject());
+    value = obj->mValue ^ otherObj->mValue;
+  } else {
+    ThrowException(Exception::TypeError(String::New("Object or number expected")));
     return scope.Close(Undefined());
   }
-  Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
-  Int64* otherObj = ObjectWrap::Unwrap<Int64>(args[0]->ToObject());
-  uint64_t value = obj->mValue ^ otherObj->mValue;
   Local<Value> argv[2] = {
     Int32::NewFromUnsigned(static_cast<uint32_t>(value >> 32)),
     Int32::NewFromUnsigned(static_cast<uint32_t>(value & 0xffffffffull))
@@ -342,12 +354,12 @@ Handle<Value> Int64::Xor(const Arguments& args) {
 
 Handle<Value> Int64::Add(const Arguments& args) {
   HandleScope scope;
-  uint64_t value;
   if (args.Length() < 1) {
     ThrowException(Exception::TypeError(String::New("Argument required")));
     return scope.Close(Undefined());
   }
   Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
+  uint64_t value;
   if (args[0]->IsNumber()) {
     value = obj->mValue + args[0]->Int32Value();
   } else if (args[0]->IsObject()) {
@@ -367,12 +379,12 @@ Handle<Value> Int64::Add(const Arguments& args) {
 
 Handle<Value> Int64::Sub(const Arguments& args) {
   HandleScope scope;
-  uint64_t value;
   if (args.Length() < 1) {
     ThrowException(Exception::TypeError(String::New("Argument required")));
     return scope.Close(Undefined());
   }
   Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
+  uint64_t value;
   if (args[0]->IsNumber()) {
     value = obj->mValue - args[0]->Int32Value();
   } else if (args[0]->IsObject()) {

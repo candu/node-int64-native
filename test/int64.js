@@ -50,6 +50,9 @@ describe('Int64', function testInt64() {
     expect(y.toString()).to.equal('0x0000000000003210');
     expect(z.toString()).to.equal('0xfedcba987654ffff');
     expect(w.toString()).to.equal('0x0123456789abcdef');
+    expect(x.and(0xffff).toString()).to.equal('0x0000000000003210');
+    expect(x.or(0xffff).toString()).to.equal('0xfedcba987654ffff');
+    expect(x.xor(0xffff).toString()).to.equal('0xfedcba987654cdef');
     var a = new Int64(7),
         b = a.shiftLeft(1),
         c = a.shiftRight(1);
@@ -73,5 +76,21 @@ describe('Int64', function testInt64() {
     var decimal = new Int64('13510798882111487');
     expect(decimal.toSignedDecimalString()).to.equal('13510798882111487');
     expect(decimal.toUnsignedDecimalString()).to.equal('13510798882111487');
+  });
+
+  it('can be added', function testAdd() {
+    var a = new Int64(3),
+        b = new Int64(2);
+    expect(a.add(b).equals(new Int64(5))).to.be.true;
+    expect(a.add(4).equals(new Int64(7))).to.be.true;
+  });
+
+  it('can be subtracted', function testSub() {
+    var a = new Int64(3),
+        b = new Int64(2);
+    expect(a.sub(b).equals(new Int64(1))).to.be.true;
+    expect(a.sub(1).equals(new Int64(2))).to.be.true;
+
+    expect(a.sub(4).equals(new Int64('0xffffffffffffffff'))).to.be.true;
   });
 });
