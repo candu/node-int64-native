@@ -1,6 +1,7 @@
 var Int64 = require('../int64'),
     chai = require('chai'),
-    expect = chai.expect;
+    expect = chai.expect,
+    inherits = require('util').inherits;
 
 describe('Int64', function testInt64() {
   it('can be constructed', function testConstructor() {
@@ -107,5 +108,25 @@ describe('Int64', function testInt64() {
 
     // numbers larger than int32
     expect(c.sub(0x100000000).toString()).to.equal('0xfffffffeffffffff');
+  });
+
+  it('can be extended via prototype', function testExtendPrototype() {
+    Int64.prototype.multiply = function(other) {
+      // NOTE: this will suffer from the same integer truncation issues that
+      // you get normally when manipulating JavaScript numbers.
+      var a = this.toNumber(),
+          b = other.toNumber();
+      return new Int64(a * b);
+    };
+    expect(new Int64(2).multiply(new Int64(3))).to.equal(6);
+  });
+
+  it('can be subclassed', function testSubclass() {
+    function MyInt64() {
+      MyInt64.super_.apply(this, arguments);
+    };
+    inherits(MyInt64, Int64);
+
+    expect(new MyInt64(123).toNumber()).to.equal(123);
   });
 });
