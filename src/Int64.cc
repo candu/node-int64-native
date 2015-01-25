@@ -4,6 +4,7 @@
 
 #include <node.h>
 #include <v8.h>
+#include <nan.h>
 
 #include <iomanip>
 #include <limits>
@@ -17,387 +18,490 @@ using namespace v8;
 
 Persistent<Function> Int64::constructor;
 
-void Int64::Init(Handle<Object> exports) {
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-  tpl->SetClassName(String::NewSymbol("Int64"));
-  tpl->InstanceTemplate()->SetInternalFieldCount(1);
+void Int64::Init( Handle<Object> exports ) {
+  
+  Local<FunctionTemplate> tpl = NanNew<FunctionTemplate>( Int64::New );
+  
+  tpl->SetClassName( NanNew<String>( "Int64" ) );
+  tpl->InstanceTemplate()->SetInternalFieldCount( 1 );
+  
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("toNumber"),
-    FunctionTemplate::New(ToNumber)->GetFunction()
+    NanNew<String>( "toNumber" ),
+    NanNew<FunctionTemplate>( Int64::ToNumber )->GetFunction()
   );
+  
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("valueOf"),
-    FunctionTemplate::New(ValueOf)->GetFunction()
+    NanNew<String>( "valueOf" ),
+    NanNew<FunctionTemplate>( Int64::ToNumber )->GetFunction()
   );
+  
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("toString"),
-    FunctionTemplate::New(ToString)->GetFunction()
+    NanNew<String>( "toString" ),
+    NanNew<FunctionTemplate>( Int64::ToString )->GetFunction()
   );
+  
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("toUnsignedDecimalString"),
-    FunctionTemplate::New(ToUnsignedDecimalString)->GetFunction()
+    NanNew<String>( "toUnsignedDecimalString" ),
+    NanNew<FunctionTemplate>( Int64::ToUnsignedDecimalString )->GetFunction()
   );
+  
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("toSignedDecimalString"),
-    FunctionTemplate::New(ToSignedDecimalString)->GetFunction()
+    NanNew<String>( "toSignedDecimalString" ),
+    NanNew<FunctionTemplate>( Int64::ToSignedDecimalString )->GetFunction()
   );
+  
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("equals"),
-    FunctionTemplate::New(Equals)->GetFunction()
+    NanNew<String>( "equals" ),
+    NanNew<FunctionTemplate>( Int64::Equals )->GetFunction()
   );
+  
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("compare"),
-    FunctionTemplate::New(Compare)->GetFunction()
+    NanNew<String>( "compare" ),
+    NanNew<FunctionTemplate>( Int64::Compare )->GetFunction()
   );
+  
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("high32"),
-    FunctionTemplate::New(High32)->GetFunction()
+    NanNew<String>( "high32" ),
+    NanNew<FunctionTemplate>( Int64::High32 )->GetFunction()
   );
+  
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("low32"),
-    FunctionTemplate::New(Low32)->GetFunction()
+    NanNew<String>( "low32" ),
+    NanNew<FunctionTemplate>( Int64::Low32 )->GetFunction()
   );
+  
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("shiftLeft"),
-    FunctionTemplate::New(ShiftLeft)->GetFunction()
+    NanNew<String>( "shiftLeft" ),
+    NanNew<FunctionTemplate>( Int64::ShiftLeft )->GetFunction()
   );
+  
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("shiftRight"),
-    FunctionTemplate::New(ShiftRight)->GetFunction()
+    NanNew<String>( "shiftRight" ),
+    NanNew<FunctionTemplate>( Int64::ShiftRight )->GetFunction()
   );
+  
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("and"),
-    FunctionTemplate::New(And)->GetFunction()
+    NanNew<String>( "and" ),
+    NanNew<FunctionTemplate>( Int64::And )->GetFunction()
   );
+  
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("or"),
-    FunctionTemplate::New(Or)->GetFunction()
+    NanNew<String>( "or" ),
+    NanNew<FunctionTemplate>( Int64::Or )->GetFunction()
   );
+  
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("xor"),
-    FunctionTemplate::New(Xor)->GetFunction()
+    NanNew<String>( "xor" ),
+    NanNew<FunctionTemplate>( Int64::Xor )->GetFunction()
   );
+  
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("add"),
-    FunctionTemplate::New(Add)->GetFunction()
+    NanNew<String>( "add" ),
+    NanNew<FunctionTemplate>( Int64::Add )->GetFunction()
   );
+  
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("sub"),
-    FunctionTemplate::New(Sub)->GetFunction()
+    NanNew<String>( "sub" ),
+    NanNew<FunctionTemplate>( Int64::Sub )->GetFunction()
   );
-  constructor = Persistent<Function>::New(tpl->GetFunction());
-  exports->Set(String::NewSymbol("Int64"), constructor);
+  
+  // Create constructor function from template
+  NanAssignPersistent( Int64::constructor, tpl->GetFunction() );
+  // Set module.exports to constructor
+  exports->Set( NanNew<String>( "Int64" ), NanNew( Int64::constructor ) );
+  
 }
 
 Int64::Int64() {
   mValue = 0;
 }
 
-Int64::Int64(const Local<Number>& n) {
-  mValue = static_cast<uint64_t>(n->NumberValue());
+Int64::Int64( const Local<Number>& n ) {
+  mValue = static_cast<uint64_t> ( n->NumberValue() );
 }
 
-Int64::Int64(const Local<Number>& hi, const Local<Number>& lo) {
-  uint32_t highBits = static_cast<uint32_t>(hi->NumberValue());
-  uint32_t lowBits = static_cast<uint32_t>(lo->NumberValue());
+Int64::Int64( const Local<Number>& hi, const Local<Number>& lo ) {
+  uint32_t highBits = static_cast<uint32_t> ( hi->NumberValue() );
+  uint32_t lowBits = static_cast<uint32_t> ( lo->NumberValue() );
   mValue =
-    (static_cast<uint64_t>(highBits) << 32) |
-    (static_cast<uint64_t>(lowBits));
+    ( static_cast<uint64_t> ( highBits ) << 32 ) |
+    ( static_cast<uint64_t> ( lowBits ) );
 }
 
-Int64::Int64(const Local<String>& s) {
-  String::Utf8Value utf8(s);
-  stringstream ss;
+Int64::Int64( const Local<String>& str ) {
+  
+  NanUtf8String utf8( str );
+  stringstream stream;
+  
   char* ps = *utf8;
-  if (utf8.length() > 2 && ps[0] == '0' && ps[1] == 'x') {
-    ss << hex << (ps + 2);
+  
+  if( utf8.length() > 2 && ps[0] == '0' && ps[1] == 'x' ) {
+    stream << hex << ( ps + 2 );
   } else {
-    ss << ps;
+    stream << ps;
   }
-  ss >> mValue;
+  
+  stream >> mValue;
+  
 }
 
 Int64::~Int64() {}
 
-Handle<Value> Int64::New(const Arguments& args) {
-  HandleScope scope;
-  Int64* obj = NULL;
-  if (args.Length() == 0) {
-    obj = new Int64();
-  } else if (args.Length() == 1) {
-    if (args[0]->IsNumber()) {
-      obj = new Int64(args[0]->ToNumber());
-    } else if (args[0]->IsString()) {
-      obj = new Int64(args[0]->ToString());
-    }
-  } else if (args.Length() == 2) {
-    if (args[0]->IsNumber() && args[1]->IsNumber()) {
-      obj = new Int64(args[0]->ToNumber(), args[1]->ToNumber());
-    }
-  }
-  if (obj == NULL) {
-    ThrowException(Exception::TypeError(String::New("Wrong arguments")));
-    return scope.Close(Undefined());
-  }
-  obj->Wrap(args.This());
-  return args.This();
-}
-
-Handle<Value> Int64::ToNumber(const Arguments& args) {
-  HandleScope scope;
-  Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
-  if (obj->mValue >= 1ull << 53) {
-    return scope.Close(Number::New(numeric_limits<double>::infinity()));
-  }
-  double value = static_cast<double>(obj->mValue);
-  return scope.Close(Number::New(value));
-}
-
-Handle<Value> Int64::ValueOf(const Arguments& args) {
-  return ToNumber(args);
-}
-
-Handle<Value> Int64::ToString(const Arguments& args) {
-  HandleScope scope;
-  Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
+NAN_METHOD( Int64::New ) {
   
-  std::ostringstream o;
-  o << "0x" << hex << setfill('0') << setw(16) << obj->mValue;
-  return scope.Close(String::New(o.str().c_str()));
+  NanScope();
+  Int64* obj = NULL;
+  
+  if( args.Length() == 0 ) {
+    obj = new Int64();
+  }
+  
+  if( args.Length() == 1 ) {
+    if( args[0]->IsNumber() ) {
+      obj = new Int64( args[0]->ToNumber() );
+    } else if( args[0]->IsString() ) {
+      obj = new Int64( args[0]->ToString() );
+    }
+  }
+  
+  if( args.Length() == 2 ) {
+    if( args[0]->IsNumber() && args[1]->IsNumber() ) {
+      obj = new Int64( args[0]->ToNumber(), args[1]->ToNumber() );
+    }
+  }
+  
+  if( obj == NULL ) {
+    NanThrowTypeError( "Arguments must be of type String or Number" );
+  }
+  
+  obj->Wrap( args.This() );
+  
+  NanReturnThis();
+  
 }
 
-Handle<Value> Int64::ToUnsignedDecimalString(const Arguments& args) {
-  HandleScope scope;
-  Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
-
-  std::ostringstream o;
-  o << obj->mValue;
-  return scope.Close(String::New(o.str().c_str()));
+NAN_METHOD( Int64::ToNumber ) {
+  
+  NanScope();
+  Int64* obj = ObjectWrap::Unwrap<Int64>( args.This() );
+  double value;
+  
+  if( obj->mValue >= 1ull << 53 ) {
+    value = numeric_limits<double>::infinity();
+  } else {
+    value = static_cast<double>( obj->mValue );
+  }
+  
+  NanReturnValue( NanNew<Number>( value ) );
+  
 }
 
-Handle<Value> Int64::ToSignedDecimalString(const Arguments& args) {
-  HandleScope scope;
-  Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
-
-  std::ostringstream o;
-  o << (static_cast<int64_t>(obj->mValue));
-  return scope.Close(String::New(o.str().c_str()));
+NAN_METHOD( Int64::ToString ) {
+  
+  NanScope();
+  Int64* obj = ObjectWrap::Unwrap<Int64>( args.This() );
+  
+  std::ostringstream out;
+  
+  out << "0x" << hex << setfill( '0' ) << setw( 16 ) << obj->mValue;
+  
+  NanReturnValue( NanNew<String>( out.str().c_str() ) );
+  
 }
 
-Handle<Value> Int64::Equals(const Arguments& args) {
-  HandleScope scope;
-  if (args.Length() < 1) {
-    ThrowException(Exception::TypeError(String::New("Argument required")));
-    return scope.Close(Undefined());
-  }
-  if (!args[0]->IsObject()) {
-    ThrowException(Exception::TypeError(String::New("Object expected")));
-    return scope.Close(Undefined());
-  }
-  Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
-  Int64* otherObj = ObjectWrap::Unwrap<Int64>(args[0]->ToObject());
-  bool isEqual = obj->mValue == otherObj->mValue;
-  return scope.Close(Boolean::New(isEqual));
+NAN_METHOD( Int64::ToUnsignedDecimalString ) {
+  
+  NanScope();
+  Int64* obj = ObjectWrap::Unwrap<Int64>( args.This() );
+  
+  std::ostringstream out;
+  
+  out << obj->mValue;
+  
+  NanReturnValue( NanNew<String>( out.str().c_str() ) );
+  
 }
 
-Handle<Value> Int64::Compare(const Arguments& args) {
-  HandleScope scope;
-  if (args.Length() < 1) {
-    ThrowException(Exception::TypeError(String::New("Argument required")));
-    return scope.Close(Undefined());
+NAN_METHOD( Int64::ToSignedDecimalString ) {
+  
+  NanScope();
+  Int64* obj = ObjectWrap::Unwrap<Int64>( args.This() );
+  
+  std::ostringstream out;
+  
+  out << ( static_cast<int64_t> ( obj->mValue ) );
+  
+  NanReturnValue( NanNew<String>( out.str().c_str() ) );
+  
+}
+
+NAN_METHOD( Int64::Equals ) {
+  
+  NanScope();
+  
+  if( args.Length() < 1 ) {
+    NanThrowError( "Missing argument" );
   }
-  if (!args[0]->IsObject()) {
-    ThrowException(Exception::TypeError(String::New("Object expected")));
-    return scope.Close(Undefined());
+  
+  if( !args[0]->IsObject() ) {
+    NanThrowTypeError( "Argument must be an Object" );
   }
-  Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
-  Int64* otherObj = ObjectWrap::Unwrap<Int64>(args[0]->ToObject());
+  
+  Int64* a = ObjectWrap::Unwrap<Int64>( args.This() );
+  Int64* b = ObjectWrap::Unwrap<Int64>( args[0]->ToObject() );
+  
+  bool isEqual = a->mValue == b->mValue;
+  
+  NanReturnValue( NanNew<Boolean>( isEqual ) );
+  
+}
+
+NAN_METHOD( Int64::Compare ) {
+  
+  NanScope();
+  
+  if( args.Length() < 1 ) {
+    NanThrowError( "Missing argument" );
+  }
+  
+  if( !args[0]->IsObject() ) {
+    NanThrowTypeError( "Argument must be an Object" );
+  }
+  
+  Int64* a = ObjectWrap::Unwrap<Int64>( args.This() );
+  Int64* b = ObjectWrap::Unwrap<Int64>( args[0]->ToObject() );
+  
   int32_t cmp = 0;
-  if (obj->mValue < otherObj->mValue) {
+  
+  if( a->mValue < b->mValue ) {
     cmp = -1;
-  } else if (obj->mValue > otherObj->mValue) {
+  } else if( a->mValue > b->mValue ) {
     cmp = 1;
   }
-  return scope.Close(Int32::New(cmp));
+  
+  NanReturnValue( NanNew<Number>( cmp ) );
+  
 }
 
-Handle<Value> Int64::High32(const Arguments& args) {
-  HandleScope scope;
-  Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
-  uint32_t highBits = static_cast<uint32_t>(obj->mValue >> 32);
-  return scope.Close(Int32::NewFromUnsigned(highBits));
+NAN_METHOD( Int64::High32 ) {
+  NanScope();
+  Int64* obj = ObjectWrap::Unwrap<Int64>( args.This() );
+  uint32_t highBits = static_cast<uint32_t> ( obj->mValue >> 32 );
+  NanReturnValue( NanNew<Number>( highBits ) );
 }
 
-Handle<Value> Int64::Low32(const Arguments& args) {
-  HandleScope scope;
-  Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
-  uint32_t lowBits = static_cast<uint32_t>(obj->mValue & 0xffffffffull);
-  return scope.Close(Int32::NewFromUnsigned(lowBits));
+NAN_METHOD( Int64::Low32 ) {
+  NanScope();
+  Int64* obj = ObjectWrap::Unwrap<Int64>( args.This() );
+  uint32_t lowBits = static_cast<uint32_t> ( obj->mValue & 0xffffffffull );
+  NanReturnValue( NanNew<Number>( lowBits ) );
 }
 
-Handle<Value> Int64::ShiftLeft(const Arguments& args) {
-  HandleScope scope;
-  if (args.Length() < 1) {
-    ThrowException(Exception::TypeError(String::New("Argument required")));
-    return scope.Close(Undefined());
+NAN_METHOD( Int64::ShiftLeft ) {
+  
+  NanScope();
+  Int64* obj = ObjectWrap::Unwrap<Int64>( args.This() );
+  
+  if( args.Length() < 1 ) {
+    NanThrowError( "Missing argument" );
   }
-  if (!args[0]->IsNumber()) {
-    ThrowException(Exception::TypeError(String::New("Integer expected")));
-    return scope.Close(Undefined());
+  
+  if( !args[0]->IsNumber() ) {
+    NanThrowTypeError( "Argument must be a Number" );
   }
-  Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
-  uint64_t shiftBy = static_cast<uint64_t>(args[0]->ToNumber()->NumberValue());
+  
+  uint64_t shiftBy = static_cast<uint64_t> ( args[0]->ToNumber()->NumberValue() );
   uint64_t value = obj->mValue << shiftBy;
+  
   Local<Value> argv[2] = {
-    Int32::NewFromUnsigned(static_cast<uint32_t>(value >> 32)),
-    Int32::NewFromUnsigned(static_cast<uint32_t>(value & 0xffffffffull))
+    NanNew<Number>( static_cast<uint32_t> ( value >> 32 ) ),
+    NanNew<Number>( static_cast<uint32_t> ( value & 0xffffffffull ) ),
   };
-  Local<Object> instance = constructor->NewInstance(2, argv);
-  return scope.Close(instance);
+  
+  Local<Object> instance = NanNew( Int64::constructor )->NewInstance( 2, argv );
+  
+  NanReturnValue( instance );
+  
 }
 
-Handle<Value> Int64::ShiftRight(const Arguments& args) {
-  HandleScope scope;
-  if (args.Length() < 1) {
-    ThrowException(Exception::TypeError(String::New("Argument required")));
-    return scope.Close(Undefined());
+NAN_METHOD( Int64::ShiftRight ) {
+  
+  NanScope();
+  Int64* obj = ObjectWrap::Unwrap<Int64>( args.This() );
+  
+  if( args.Length() < 1 ) {
+    NanThrowError( "Missing argument" );
   }
-  if (!args[0]->IsNumber()) {
-    ThrowException(Exception::TypeError(String::New("Integer expected")));
-    return scope.Close(Undefined());
+  
+  if( !args[0]->IsNumber() ) {
+    NanThrowTypeError( "Argument must be a Number" );
   }
-  Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
-  uint64_t shiftBy = static_cast<uint64_t>(args[0]->ToNumber()->NumberValue());
+  
+  uint64_t shiftBy = static_cast<uint64_t> ( args[0]->ToNumber()->NumberValue() );
   uint64_t value = obj->mValue >> shiftBy;
+  
   Local<Value> argv[2] = {
-    Int32::NewFromUnsigned(static_cast<uint32_t>(value >> 32)),
-    Int32::NewFromUnsigned(static_cast<uint32_t>(value & 0xffffffffull))
+    NanNew<Int32>( static_cast<uint32_t> ( value >> 32 ) ),
+    NanNew<Int32>( static_cast<uint32_t> ( value & 0xffffffffull ) ),
   };
-  Local<Object> instance = constructor->NewInstance(2, argv);
-  return scope.Close(instance);
+  
+  Local<Object> instance = NanNew( Int64::constructor )->NewInstance( 2, argv );
+  
+  NanReturnValue( instance );
+  
 }
 
-Handle<Value> Int64::And(const Arguments& args) {
-  HandleScope scope;
-  if (args.Length() < 1) {
-    ThrowException(Exception::TypeError(String::New("Argument required")));
-    return scope.Close(Undefined());
+NAN_METHOD( Int64::And ) {
+  
+  NanScope();
+  Int64* obj = ObjectWrap::Unwrap<Int64>( args.This() );
+  
+  if( args.Length() < 1 ) {
+    NanThrowError( "Missing argument" );
   }
-  Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
-  uint64_t value;
-  if (args[0]->IsNumber()) {
+  
+  uint64_t value = 0;
+  
+  if( args[0]->IsNumber() ) {
     value = obj->mValue & args[0]->IntegerValue();
-  } else if (args[0]->IsObject()) {
-    Int64* otherObj = ObjectWrap::Unwrap<Int64>(args[0]->ToObject());
+  } else if( args[0]->IsObject() ) {
+    Int64* otherObj = ObjectWrap::Unwrap<Int64>( args[0]->ToObject() );
     value = obj->mValue & otherObj->mValue;
   } else {
-    ThrowException(Exception::TypeError(String::New("Object or number expected")));
-    return scope.Close(Undefined());
+    NanThrowTypeError( "Argument must be a Number or Object" );
   }
+  
   Local<Value> argv[2] = {
-    Int32::NewFromUnsigned(static_cast<uint32_t>(value >> 32)),
-    Int32::NewFromUnsigned(static_cast<uint32_t>(value & 0xffffffffull))
+    NanNew<Number>( static_cast<uint32_t> ( value >> 32 ) ),
+    NanNew<Number>( static_cast<uint32_t> ( value & 0xffffffffull ) ),
   };
-  Local<Object> instance = constructor->NewInstance(2, argv);
-  return scope.Close(instance);
+  
+  Local<Object> instance = NanNew( Int64::constructor )->NewInstance( 2, argv );
+  
+  NanReturnValue( instance );
+  
 }
 
-Handle<Value> Int64::Or(const Arguments& args) {
-  HandleScope scope;
-  if (args.Length() < 1) {
-    ThrowException(Exception::TypeError(String::New("Argument required")));
-    return scope.Close(Undefined());
+NAN_METHOD( Int64::Or ) {
+  
+  NanScope();
+  Int64* obj = ObjectWrap::Unwrap<Int64>( args.This() );
+  
+  if( args.Length() < 1 ) {
+    NanThrowError( "Missing argument" );
   }
-  Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
-  uint64_t value;
-  if (args[0]->IsNumber()) {
+  
+  uint64_t value = 0;
+  
+  if( args[0]->IsNumber() ) {
     value = obj->mValue | args[0]->IntegerValue();
-  } else if (args[0]->IsObject()) {
-    Int64* otherObj = ObjectWrap::Unwrap<Int64>(args[0]->ToObject());
+  } else if( args[0]->IsObject() ) {
+    Int64* otherObj = ObjectWrap::Unwrap<Int64>( args[0]->ToObject() );
     value = obj->mValue | otherObj->mValue;
   } else {
-    ThrowException(Exception::TypeError(String::New("Object or number expected")));
-    return scope.Close(Undefined());
+    NanThrowTypeError( "Argument must be a Number or Object" );
   }
+  
   Local<Value> argv[2] = {
-    Int32::NewFromUnsigned(static_cast<uint32_t>(value >> 32)),
-    Int32::NewFromUnsigned(static_cast<uint32_t>(value & 0xffffffffull))
+    NanNew<Number>( static_cast<uint32_t> ( value >> 32 ) ),
+    NanNew<Number>( static_cast<uint32_t> ( value & 0xffffffffull ) ),
   };
-  Local<Object> instance = constructor->NewInstance(2, argv);
-  return scope.Close(instance);
+  
+  Local<Object> instance = NanNew( Int64::constructor )->NewInstance( 2, argv );
+  
+  NanReturnValue( instance );
+  
 }
 
-Handle<Value> Int64::Xor(const Arguments& args) {
-  HandleScope scope;
-  if (args.Length() < 1) {
-    ThrowException(Exception::TypeError(String::New("Argument required")));
-    return scope.Close(Undefined());
+NAN_METHOD( Int64::Xor ) {
+  
+  NanScope();
+  Int64* obj = ObjectWrap::Unwrap<Int64>( args.This() );
+  
+  if( args.Length() < 1 ) {
+    NanThrowError( "Missing argument" );
   }
-  Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
-  uint64_t value;
-  if (args[0]->IsNumber()) {
+  
+  uint64_t value = 0;
+  
+  if( args[0]->IsNumber() ) {
     value = obj->mValue ^ args[0]->IntegerValue();
-  } else if (args[0]->IsObject()) {
-    Int64* otherObj = ObjectWrap::Unwrap<Int64>(args[0]->ToObject());
+  } else if( args[0]->IsObject() ) {
+    Int64* otherObj = ObjectWrap::Unwrap<Int64>( args[0]->ToObject() );
     value = obj->mValue ^ otherObj->mValue;
   } else {
-    ThrowException(Exception::TypeError(String::New("Object or number expected")));
-    return scope.Close(Undefined());
+    NanThrowTypeError( "Argument must be a Number or Object" );
   }
+  
   Local<Value> argv[2] = {
-    Int32::NewFromUnsigned(static_cast<uint32_t>(value >> 32)),
-    Int32::NewFromUnsigned(static_cast<uint32_t>(value & 0xffffffffull))
+    NanNew<Number>( static_cast<uint32_t> ( value >> 32 ) ),
+    NanNew<Number>( static_cast<uint32_t> ( value & 0xffffffffull ) ),
   };
-  Local<Object> instance = constructor->NewInstance(2, argv);
-  return scope.Close(instance);
+  
+  Local<Object> instance = NanNew( Int64::constructor )->NewInstance( 2, argv );
+  
+  NanReturnValue( instance );
+  
 }
 
-Handle<Value> Int64::Add(const Arguments& args) {
-  HandleScope scope;
-  if (args.Length() < 1) {
-    ThrowException(Exception::TypeError(String::New("Argument required")));
-    return scope.Close(Undefined());
+NAN_METHOD( Int64::Add ) {
+  
+  NanScope();
+  Int64* obj = ObjectWrap::Unwrap<Int64>( args.This() );
+  
+  if( args.Length() < 1 ) {
+    NanThrowError( "Missing argument" );
   }
-  Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
-  uint64_t value;
-  if (args[0]->IsNumber()) {
+  
+  uint64_t value = 0;
+  
+  if( args[0]->IsNumber() ) {
     value = obj->mValue + args[0]->IntegerValue();
-  } else if (args[0]->IsObject()) {
-    Int64* otherObj = ObjectWrap::Unwrap<Int64>(args[0]->ToObject());
+  } else if( args[0]->IsObject() ) {
+    Int64* otherObj = ObjectWrap::Unwrap<Int64>( args[0]->ToObject() );
     value = obj->mValue + otherObj->mValue;
   } else {
-    ThrowException(Exception::TypeError(String::New("Object or number expected")));
-    return scope.Close(Undefined());
+    NanThrowTypeError( "Argument must be a Number or Object" );
   }
+  
   Local<Value> argv[2] = {
-    Int32::NewFromUnsigned(static_cast<uint32_t>(value >> 32)),
-    Int32::NewFromUnsigned(static_cast<uint32_t>(value & 0xffffffffull))
+    NanNew<Number>( static_cast<uint32_t> ( value >> 32 ) ),
+    NanNew<Number>( static_cast<uint32_t> ( value & 0xffffffffull ) ),
   };
-  Local<Object> instance = constructor->NewInstance(2, argv);
-  return scope.Close(instance);
+  
+  Local<Object> instance = NanNew( Int64::constructor )->NewInstance( 2, argv );
+  
+  NanReturnValue( instance );
+  
 }
 
-Handle<Value> Int64::Sub(const Arguments& args) {
-  HandleScope scope;
-  if (args.Length() < 1) {
-    ThrowException(Exception::TypeError(String::New("Argument required")));
-    return scope.Close(Undefined());
+NAN_METHOD( Int64::Sub ) {
+  
+  NanScope();
+  Int64* obj = ObjectWrap::Unwrap<Int64>( args.This() );
+  
+  if( args.Length() < 1 ) {
+    NanThrowError( "Missing argument" );
   }
-  Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
-  uint64_t value;
-  if (args[0]->IsNumber()) {
+  
+  uint64_t value = 0;
+  
+  if( args[0]->IsNumber() ) {
     value = obj->mValue - args[0]->IntegerValue();
-  } else if (args[0]->IsObject()) {
-    Int64* otherObj = ObjectWrap::Unwrap<Int64>(args[0]->ToObject());
+  } else if( args[0]->IsObject() ) {
+    Int64* otherObj = ObjectWrap::Unwrap<Int64>( args[0]->ToObject() );
     value = obj->mValue - otherObj->mValue;
   } else {
-    ThrowException(Exception::TypeError(String::New("Object or number expected")));
-    return scope.Close(Undefined());
+    NanThrowTypeError( "Argument must be a Number or Object" );
   }
+  
   Local<Value> argv[2] = {
-    Int32::NewFromUnsigned(static_cast<uint32_t>(value >> 32)),
-    Int32::NewFromUnsigned(static_cast<uint32_t>(value & 0xffffffffull))
+    NanNew<Number>( static_cast<uint32_t> ( value >> 32 ) ),
+    NanNew<Number>( static_cast<uint32_t> ( value & 0xffffffffull ) ),
   };
-  Local<Object> instance = constructor->NewInstance(2, argv);
-  return scope.Close(instance);
+  
+  Local<Object> instance = NanNew( Int64::constructor )->NewInstance( 2, argv );
+  
+  NanReturnValue( instance );
+  
 }
