@@ -8,20 +8,25 @@
     "bigint"
   ],
   "homepage": "https://github.com/candu/node-int64-native",
-  "author": {
-    "name": "Evan Savage",
-    "email": "savage.evan@gmail.com",
-    "url": "https://github.com/candu"
-  },
+  "author": "Evan Savage <savage.evan@gmail.com> (https://github.com/candu)",
   "main": "int64",
   "scripts": {
-    "install": "node-gyp configure && node-gyp build",
-    "test": "npm install && mocha"
+    "install": "node-gyp rebuild",
+    "test": "mocha"
   },
   "devDependencies": {
-    "chai": "1.5.x",
-    "mocha": "1.8.x"
+    "chai": "~1.10.0",
+    "mocha": "~2.1.0"
   },
   "license": "MIT",
-  "readmeFilename": "README.md"
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/candu/node-int64-native.git"
+  },
+  "bugs": {
+    "url": "https://github.com/candu/node-int64-native/issues"
+  }
 }
