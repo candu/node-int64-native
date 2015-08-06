@@ -3,6 +3,7 @@
 
 #include <node.h>
 #include <v8.h>
+#include <node_object_wrap.h>
 
 using namespace node;
 using namespace v8;
@@ -19,23 +20,23 @@ class Int64 : public ObjectWrap {
   ~Int64();
 
   static Persistent<Function> constructor;
-  static Handle<Value> New(const Arguments& args);
-  static Handle<Value> ToNumber(const Arguments& args);
-  static Handle<Value> ValueOf(const Arguments& args);
-  static Handle<Value> ToString(const Arguments& args);
-  static Handle<Value> ToUnsignedDecimalString(const Arguments& args);
-  static Handle<Value> ToSignedDecimalString(const Arguments& args);
-  static Handle<Value> Equals(const Arguments& args);
-  static Handle<Value> Compare(const Arguments& args);
-  static Handle<Value> High32(const Arguments& args);
-  static Handle<Value> Low32(const Arguments& args);
-  static Handle<Value> ShiftLeft(const Arguments& args);
-  static Handle<Value> ShiftRight(const Arguments& args);
-  static Handle<Value> And(const Arguments& args);
-  static Handle<Value> Or(const Arguments& args);
-  static Handle<Value> Xor(const Arguments& args);
-  static Handle<Value> Add(const Arguments& args);
-  static Handle<Value> Sub(const Arguments& args);
+  static void New(const FunctionCallbackInfo<Value>& args);
+  static void ToNumber(const FunctionCallbackInfo<Value>& args);
+  static void ValueOf(const FunctionCallbackInfo<Value>& args);
+  static void ToString(const FunctionCallbackInfo<Value>& args);
+  static void ToUnsignedDecimalString(const FunctionCallbackInfo<Value>& args);
+  static void ToSignedDecimalString(const FunctionCallbackInfo<Value>& args);
+  static void Equals(const FunctionCallbackInfo<Value>& args);
+  static void Compare(const FunctionCallbackInfo<Value>& args);
+  static void High32(const FunctionCallbackInfo<Value>& args);
+  static void Low32(const FunctionCallbackInfo<Value>& args);
+  static void ShiftLeft(const FunctionCallbackInfo<Value>& args);
+  static void ShiftRight(const FunctionCallbackInfo<Value>& args);
+  static void And(const FunctionCallbackInfo<Value>& args);
+  static void Or(const FunctionCallbackInfo<Value>& args);
+  static void Xor(const FunctionCallbackInfo<Value>& args);
+  static void Add(const FunctionCallbackInfo<Value>& args);
+  static void Sub(const FunctionCallbackInfo<Value>& args);
 
   uint64_t mValue;
 };
