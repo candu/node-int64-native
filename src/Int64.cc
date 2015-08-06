@@ -18,75 +18,78 @@ using namespace v8;
 Persistent<Function> Int64::constructor;
 
 void Int64::Init(Handle<Object> exports) {
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-  tpl->SetClassName(String::NewSymbol("Int64"));
+  Isolate* isolate = Isolate::GetCurrent();
+
+  Local<FunctionTemplate> tpl = FunctionTemplate::New(isolate, New);
+
+  tpl->SetClassName(String::NewFromUtf8(isolate, "Int64"));
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("toNumber"),
-    FunctionTemplate::New(ToNumber)->GetFunction()
+    String::NewFromUtf8(isolate, "toNumber"),
+    FunctionTemplate::New(isolate, ToNumber)->GetFunction()
   );
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("valueOf"),
-    FunctionTemplate::New(ValueOf)->GetFunction()
+    String::NewFromUtf8(isolate, "valueOf"),
+    FunctionTemplate::New(isolate, ValueOf)->GetFunction()
   );
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("toString"),
-    FunctionTemplate::New(ToString)->GetFunction()
+    String::NewFromUtf8(isolate, "toString"),
+    FunctionTemplate::New(isolate, ToString)->GetFunction()
   );
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("toUnsignedDecimalString"),
-    FunctionTemplate::New(ToUnsignedDecimalString)->GetFunction()
+    String::NewFromUtf8(isolate, "toUnsignedDecimalString"),
+    FunctionTemplate::New(isolate, ToUnsignedDecimalString)->GetFunction()
   );
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("toSignedDecimalString"),
-    FunctionTemplate::New(ToSignedDecimalString)->GetFunction()
+    String::NewFromUtf8(isolate, "toSignedDecimalString"),
+    FunctionTemplate::New(isolate, ToSignedDecimalString)->GetFunction()
   );
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("equals"),
-    FunctionTemplate::New(Equals)->GetFunction()
+    String::NewFromUtf8(isolate, "equals"),
+    FunctionTemplate::New(isolate, Equals)->GetFunction()
   );
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("compare"),
-    FunctionTemplate::New(Compare)->GetFunction()
+    String::NewFromUtf8(isolate, "compare"),
+    FunctionTemplate::New(isolate, Compare)->GetFunction()
   );
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("high32"),
-    FunctionTemplate::New(High32)->GetFunction()
+    String::NewFromUtf8(isolate, "high32"),
+    FunctionTemplate::New(isolate, High32)->GetFunction()
   );
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("low32"),
-    FunctionTemplate::New(Low32)->GetFunction()
+    String::NewFromUtf8(isolate, "low32"),
+    FunctionTemplate::New(isolate, Low32)->GetFunction()
   );
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("shiftLeft"),
-    FunctionTemplate::New(ShiftLeft)->GetFunction()
+    String::NewFromUtf8(isolate, "shiftLeft"),
+    FunctionTemplate::New(isolate, ShiftLeft)->GetFunction()
   );
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("shiftRight"),
-    FunctionTemplate::New(ShiftRight)->GetFunction()
+    String::NewFromUtf8(isolate, "shiftRight"),
+    FunctionTemplate::New(isolate, ShiftRight)->GetFunction()
   );
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("and"),
-    FunctionTemplate::New(And)->GetFunction()
+    String::NewFromUtf8(isolate, "and"),
+    FunctionTemplate::New(isolate, And)->GetFunction()
   );
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("or"),
-    FunctionTemplate::New(Or)->GetFunction()
+    String::NewFromUtf8(isolate, "or"),
+    FunctionTemplate::New(isolate, Or)->GetFunction()
   );
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("xor"),
-    FunctionTemplate::New(Xor)->GetFunction()
+    String::NewFromUtf8(isolate, "xor"),
+    FunctionTemplate::New(isolate, Xor)->GetFunction()
   );
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("add"),
-    FunctionTemplate::New(Add)->GetFunction()
+    String::NewFromUtf8(isolate, "add"),
+    FunctionTemplate::New(isolate, Add)->GetFunction()
   );
   tpl->PrototypeTemplate()->Set(
-    String::NewSymbol("sub"),
-    FunctionTemplate::New(Sub)->GetFunction()
+    String::NewFromUtf8(isolate, "sub"),
+    FunctionTemplate::New(isolate, Sub)->GetFunction()
   );
-  constructor = Persistent<Function>::New(tpl->GetFunction());
-  exports->Set(String::NewSymbol("Int64"), constructor);
+  constructor.Reset(isolate, tpl->GetFunction());
+  exports->Set(String::NewFromUtf8(isolate, "Int64"), tpl->GetFunction());
 }
 
 Int64::Int64() {
@@ -119,8 +122,9 @@ Int64::Int64(const Local<String>& s) {
 
 Int64::~Int64() {}
 
-Handle<Value> Int64::New(const Arguments& args) {
-  HandleScope scope;
+void Int64::New(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
   Int64* obj = NULL;
   if (args.Length() == 0) {
     obj = new Int64();
@@ -136,79 +140,87 @@ Handle<Value> Int64::New(const Arguments& args) {
     }
   }
   if (obj == NULL) {
-    ThrowException(Exception::TypeError(String::New("Wrong arguments")));
-    return scope.Close(Undefined());
+    isolate->ThrowException(
+      Exception::TypeError(String::NewFromUtf8(isolate, "Wrong arguments")));
   }
   obj->Wrap(args.This());
-  return args.This();
+  args.GetReturnValue().Set(args.This());
 }
 
-Handle<Value> Int64::ToNumber(const Arguments& args) {
-  HandleScope scope;
+void Int64::ToNumber(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
   Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
-  if (obj->mValue >= 1ull << 53) {
-    return scope.Close(Number::New(numeric_limits<double>::infinity()));
+
+  if (obj->mValue >= (1ull << 53)) {
+    args.GetReturnValue().Set(numeric_limits<double>::infinity());
   }
-  double value = static_cast<double>(obj->mValue);
-  return scope.Close(Number::New(value));
+  else {
+    args.GetReturnValue().Set(static_cast<double>(obj->mValue));
+  }
 }
 
-Handle<Value> Int64::ValueOf(const Arguments& args) {
+void Int64::ValueOf(const FunctionCallbackInfo<Value>& args) {
   return ToNumber(args);
 }
 
-Handle<Value> Int64::ToString(const Arguments& args) {
-  HandleScope scope;
+void Int64::ToString(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
   Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
   
   std::ostringstream o;
   o << "0x" << hex << setfill('0') << setw(16) << obj->mValue;
-  return scope.Close(String::New(o.str().c_str()));
+  args.GetReturnValue().Set(String::NewFromUtf8(isolate, o.str().c_str()));
 }
 
-Handle<Value> Int64::ToUnsignedDecimalString(const Arguments& args) {
-  HandleScope scope;
+void Int64::ToUnsignedDecimalString(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
   Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
 
   std::ostringstream o;
   o << obj->mValue;
-  return scope.Close(String::New(o.str().c_str()));
+  args.GetReturnValue().Set(String::NewFromUtf8(isolate, o.str().c_str()));
 }
 
-Handle<Value> Int64::ToSignedDecimalString(const Arguments& args) {
-  HandleScope scope;
+void Int64::ToSignedDecimalString(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
   Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
 
   std::ostringstream o;
   o << (static_cast<int64_t>(obj->mValue));
-  return scope.Close(String::New(o.str().c_str()));
+  args.GetReturnValue().Set(String::NewFromUtf8(isolate, o.str().c_str()));
 }
 
-Handle<Value> Int64::Equals(const Arguments& args) {
-  HandleScope scope;
+void Int64::Equals(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
   if (args.Length() < 1) {
-    ThrowException(Exception::TypeError(String::New("Argument required")));
-    return scope.Close(Undefined());
+    isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Argument required")));
+    args.GetReturnValue().SetUndefined();
   }
   if (!args[0]->IsObject()) {
-    ThrowException(Exception::TypeError(String::New("Object expected")));
-    return scope.Close(Undefined());
+    isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Object expected")));
+    args.GetReturnValue().SetUndefined();
   }
   Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
   Int64* otherObj = ObjectWrap::Unwrap<Int64>(args[0]->ToObject());
   bool isEqual = obj->mValue == otherObj->mValue;
-  return scope.Close(Boolean::New(isEqual));
+  args.GetReturnValue().Set(isEqual);
 }
 
-Handle<Value> Int64::Compare(const Arguments& args) {
-  HandleScope scope;
+void Int64::Compare(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
   if (args.Length() < 1) {
-    ThrowException(Exception::TypeError(String::New("Argument required")));
-    return scope.Close(Undefined());
+    isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Argument required")));
+    args.GetReturnValue().SetUndefined();
   }
   if (!args[0]->IsObject()) {
-    ThrowException(Exception::TypeError(String::New("Object expected")));
-    return scope.Close(Undefined());
+    isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Object expected")));
+    args.GetReturnValue().SetUndefined();
   }
   Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
   Int64* otherObj = ObjectWrap::Unwrap<Int64>(args[0]->ToObject());
@@ -218,186 +230,217 @@ Handle<Value> Int64::Compare(const Arguments& args) {
   } else if (obj->mValue > otherObj->mValue) {
     cmp = 1;
   }
-  return scope.Close(Int32::New(cmp));
+  args.GetReturnValue().Set(cmp);
 }
 
-Handle<Value> Int64::High32(const Arguments& args) {
-  HandleScope scope;
+void Int64::High32(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
   Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
   uint32_t highBits = static_cast<uint32_t>(obj->mValue >> 32);
-  return scope.Close(Int32::NewFromUnsigned(highBits));
+  args.GetReturnValue().Set(highBits);
 }
 
-Handle<Value> Int64::Low32(const Arguments& args) {
-  HandleScope scope;
+void Int64::Low32(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
   Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
   uint32_t lowBits = static_cast<uint32_t>(obj->mValue & 0xffffffffull);
-  return scope.Close(Int32::NewFromUnsigned(lowBits));
+  args.GetReturnValue().Set(lowBits);
 }
 
-Handle<Value> Int64::ShiftLeft(const Arguments& args) {
-  HandleScope scope;
+void Int64::ShiftLeft(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
   if (args.Length() < 1) {
-    ThrowException(Exception::TypeError(String::New("Argument required")));
-    return scope.Close(Undefined());
+    isolate->ThrowException(
+      Exception::TypeError(String::NewFromUtf8(isolate, "Argument required")));
+    args.GetReturnValue().SetUndefined();
   }
   if (!args[0]->IsNumber()) {
-    ThrowException(Exception::TypeError(String::New("Integer expected")));
-    return scope.Close(Undefined());
+    isolate->ThrowException(
+      Exception::TypeError(String::NewFromUtf8(isolate, "Integer expected")));
+    args.GetReturnValue().SetUndefined();
   }
   Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
   uint64_t shiftBy = static_cast<uint64_t>(args[0]->ToNumber()->NumberValue());
   uint64_t value = obj->mValue << shiftBy;
   Local<Value> argv[2] = {
-    Int32::NewFromUnsigned(static_cast<uint32_t>(value >> 32)),
-    Int32::NewFromUnsigned(static_cast<uint32_t>(value & 0xffffffffull))
+    Int32::NewFromUnsigned(isolate, static_cast<uint32_t>(value >> 32)),
+    Int32::NewFromUnsigned(isolate, static_cast<uint32_t>(value & 0xffffffffull))
   };
-  Local<Object> instance = constructor->NewInstance(2, argv);
-  return scope.Close(instance);
+
+  Local<Function> cons = Local<Function>::New(isolate, constructor);
+  Local<Object> instance = cons->NewInstance(2, argv);
+  args.GetReturnValue().Set(instance);
 }
 
-Handle<Value> Int64::ShiftRight(const Arguments& args) {
-  HandleScope scope;
+void Int64::ShiftRight(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
   if (args.Length() < 1) {
-    ThrowException(Exception::TypeError(String::New("Argument required")));
-    return scope.Close(Undefined());
+    isolate->ThrowException(
+      Exception::TypeError(String::NewFromUtf8(isolate, "Argument required")));
+    args.GetReturnValue().SetUndefined();
   }
   if (!args[0]->IsNumber()) {
-    ThrowException(Exception::TypeError(String::New("Integer expected")));
-    return scope.Close(Undefined());
+    isolate->ThrowException(
+      Exception::TypeError(String::NewFromUtf8(isolate, "Integer expected")));
+    args.GetReturnValue().SetUndefined();
   }
   Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
   uint64_t shiftBy = static_cast<uint64_t>(args[0]->ToNumber()->NumberValue());
   uint64_t value = obj->mValue >> shiftBy;
   Local<Value> argv[2] = {
-    Int32::NewFromUnsigned(static_cast<uint32_t>(value >> 32)),
-    Int32::NewFromUnsigned(static_cast<uint32_t>(value & 0xffffffffull))
+    Int32::NewFromUnsigned(isolate, static_cast<uint32_t>(value >> 32)),
+    Int32::NewFromUnsigned(isolate, static_cast<uint32_t>(value & 0xffffffffull))
   };
-  Local<Object> instance = constructor->NewInstance(2, argv);
-  return scope.Close(instance);
+  Local<Function> cons = Local<Function>::New(isolate, constructor);
+  Local<Object> instance = cons->NewInstance(2, argv);
+  args.GetReturnValue().Set(instance);
 }
 
-Handle<Value> Int64::And(const Arguments& args) {
-  HandleScope scope;
+void Int64::And(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
   if (args.Length() < 1) {
-    ThrowException(Exception::TypeError(String::New("Argument required")));
-    return scope.Close(Undefined());
+    isolate->ThrowException(
+      Exception::TypeError(String::NewFromUtf8(isolate, "Argument required")));
+    args.GetReturnValue().SetUndefined();
   }
   Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
-  uint64_t value;
+  uint64_t value = 0;
   if (args[0]->IsNumber()) {
     value = obj->mValue & args[0]->IntegerValue();
   } else if (args[0]->IsObject()) {
     Int64* otherObj = ObjectWrap::Unwrap<Int64>(args[0]->ToObject());
     value = obj->mValue & otherObj->mValue;
   } else {
-    ThrowException(Exception::TypeError(String::New("Object or number expected")));
-    return scope.Close(Undefined());
+    isolate->ThrowException(
+      Exception::TypeError(String::NewFromUtf8(isolate, "Object or number expected")));
+    args.GetReturnValue().SetUndefined();
   }
   Local<Value> argv[2] = {
-    Int32::NewFromUnsigned(static_cast<uint32_t>(value >> 32)),
-    Int32::NewFromUnsigned(static_cast<uint32_t>(value & 0xffffffffull))
+    Int32::NewFromUnsigned(isolate, static_cast<uint32_t>(value >> 32)),
+    Int32::NewFromUnsigned(isolate, static_cast<uint32_t>(value & 0xffffffffull))
   };
-  Local<Object> instance = constructor->NewInstance(2, argv);
-  return scope.Close(instance);
+  Local<Function> cons = Local<Function>::New(isolate, constructor);
+  Local<Object> instance = cons->NewInstance(2, argv);
+  args.GetReturnValue().Set(instance);
 }
 
-Handle<Value> Int64::Or(const Arguments& args) {
-  HandleScope scope;
+void Int64::Or(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
   if (args.Length() < 1) {
-    ThrowException(Exception::TypeError(String::New("Argument required")));
-    return scope.Close(Undefined());
+    isolate->ThrowException(
+      Exception::TypeError(String::NewFromUtf8(isolate, "Argument required")));
+    args.GetReturnValue().SetUndefined();
   }
   Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
-  uint64_t value;
+  uint64_t value = 0;
   if (args[0]->IsNumber()) {
     value = obj->mValue | args[0]->IntegerValue();
   } else if (args[0]->IsObject()) {
     Int64* otherObj = ObjectWrap::Unwrap<Int64>(args[0]->ToObject());
     value = obj->mValue | otherObj->mValue;
   } else {
-    ThrowException(Exception::TypeError(String::New("Object or number expected")));
-    return scope.Close(Undefined());
+    isolate->ThrowException(
+      Exception::TypeError(String::NewFromUtf8(isolate, "Object or number expected")));
+    args.GetReturnValue().SetUndefined();
   }
   Local<Value> argv[2] = {
-    Int32::NewFromUnsigned(static_cast<uint32_t>(value >> 32)),
-    Int32::NewFromUnsigned(static_cast<uint32_t>(value & 0xffffffffull))
+    Int32::NewFromUnsigned(isolate, static_cast<uint32_t>(value >> 32)),
+    Int32::NewFromUnsigned(isolate, static_cast<uint32_t>(value & 0xffffffffull))
   };
-  Local<Object> instance = constructor->NewInstance(2, argv);
-  return scope.Close(instance);
+  Local<Function> cons = Local<Function>::New(isolate, constructor);
+  Local<Object> instance = cons->NewInstance(2, argv);
+  args.GetReturnValue().Set(instance);
 }
 
-Handle<Value> Int64::Xor(const Arguments& args) {
-  HandleScope scope;
+void Int64::Xor(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
   if (args.Length() < 1) {
-    ThrowException(Exception::TypeError(String::New("Argument required")));
-    return scope.Close(Undefined());
+    isolate->ThrowException(
+      Exception::TypeError(String::NewFromUtf8(isolate, "Argument required")));
+    args.GetReturnValue().SetUndefined();
   }
   Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
-  uint64_t value;
+  uint64_t value = 0;
   if (args[0]->IsNumber()) {
     value = obj->mValue ^ args[0]->IntegerValue();
   } else if (args[0]->IsObject()) {
     Int64* otherObj = ObjectWrap::Unwrap<Int64>(args[0]->ToObject());
     value = obj->mValue ^ otherObj->mValue;
   } else {
-    ThrowException(Exception::TypeError(String::New("Object or number expected")));
-    return scope.Close(Undefined());
+    isolate->ThrowException(
+      Exception::TypeError(String::NewFromUtf8(isolate, "Object or number expected")));
+    args.GetReturnValue().SetUndefined();
   }
   Local<Value> argv[2] = {
-    Int32::NewFromUnsigned(static_cast<uint32_t>(value >> 32)),
-    Int32::NewFromUnsigned(static_cast<uint32_t>(value & 0xffffffffull))
+    Int32::NewFromUnsigned(isolate, static_cast<uint32_t>(value >> 32)),
+    Int32::NewFromUnsigned(isolate, static_cast<uint32_t>(value & 0xffffffffull))
   };
-  Local<Object> instance = constructor->NewInstance(2, argv);
-  return scope.Close(instance);
+  Local<Function> cons = Local<Function>::New(isolate, constructor);
+  Local<Object> instance = cons->NewInstance(2, argv);
+  args.GetReturnValue().Set(instance);
 }
 
-Handle<Value> Int64::Add(const Arguments& args) {
-  HandleScope scope;
+void Int64::Add(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
   if (args.Length() < 1) {
-    ThrowException(Exception::TypeError(String::New("Argument required")));
-    return scope.Close(Undefined());
+    isolate->ThrowException(
+      Exception::TypeError(String::NewFromUtf8(isolate, "Argument required")));
+    args.GetReturnValue().SetUndefined();
   }
   Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
-  uint64_t value;
+  uint64_t value = 0;
   if (args[0]->IsNumber()) {
     value = obj->mValue + args[0]->IntegerValue();
   } else if (args[0]->IsObject()) {
     Int64* otherObj = ObjectWrap::Unwrap<Int64>(args[0]->ToObject());
     value = obj->mValue + otherObj->mValue;
   } else {
-    ThrowException(Exception::TypeError(String::New("Object or number expected")));
-    return scope.Close(Undefined());
+    isolate->ThrowException(
+      Exception::TypeError(String::NewFromUtf8(isolate, "Object or number expected")));
+    args.GetReturnValue().SetUndefined();
   }
   Local<Value> argv[2] = {
-    Int32::NewFromUnsigned(static_cast<uint32_t>(value >> 32)),
-    Int32::NewFromUnsigned(static_cast<uint32_t>(value & 0xffffffffull))
+    Int32::NewFromUnsigned(isolate, static_cast<uint32_t>(value >> 32)),
+    Int32::NewFromUnsigned(isolate, static_cast<uint32_t>(value & 0xffffffffull))
   };
-  Local<Object> instance = constructor->NewInstance(2, argv);
-  return scope.Close(instance);
+  Local<Function> cons = Local<Function>::New(isolate, constructor);
+  Local<Object> instance = cons->NewInstance(2, argv);
+  args.GetReturnValue().Set(instance);
 }
 
-Handle<Value> Int64::Sub(const Arguments& args) {
-  HandleScope scope;
+void Int64::Sub(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
   if (args.Length() < 1) {
-    ThrowException(Exception::TypeError(String::New("Argument required")));
-    return scope.Close(Undefined());
+    isolate->ThrowException(
+      Exception::TypeError(String::NewFromUtf8(isolate, "Argument required")));
+    args.GetReturnValue().SetUndefined();
   }
   Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
-  uint64_t value;
+  uint64_t value = 0;
   if (args[0]->IsNumber()) {
     value = obj->mValue - args[0]->IntegerValue();
   } else if (args[0]->IsObject()) {
     Int64* otherObj = ObjectWrap::Unwrap<Int64>(args[0]->ToObject());
     value = obj->mValue - otherObj->mValue;
   } else {
-    ThrowException(Exception::TypeError(String::New("Object or number expected")));
-    return scope.Close(Undefined());
+    isolate->ThrowException(
+      Exception::TypeError(String::NewFromUtf8(isolate, "Object or number expected")));
+    args.GetReturnValue().SetUndefined();
   }
   Local<Value> argv[2] = {
-    Int32::NewFromUnsigned(static_cast<uint32_t>(value >> 32)),
-    Int32::NewFromUnsigned(static_cast<uint32_t>(value & 0xffffffffull))
+    Int32::NewFromUnsigned(isolate, static_cast<uint32_t>(value >> 32)),
+    Int32::NewFromUnsigned(isolate, static_cast<uint32_t>(value & 0xffffffffull))
   };
-  Local<Object> instance = constructor->NewInstance(2, argv);
-  return scope.Close(instance);
+  Local<Function> cons = Local<Function>::New(isolate, constructor);
+  Local<Object> instance = cons->NewInstance(2, argv);
+  args.GetReturnValue().Set(instance);
 }
