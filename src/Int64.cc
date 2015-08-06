@@ -309,7 +309,7 @@ void Int64::And(const FunctionCallbackInfo<Value>& args) {
     args.GetReturnValue().SetUndefined();
   }
   Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
-  uint64_t value;
+  uint64_t value = 0;
   if (args[0]->IsNumber()) {
     value = obj->mValue & args[0]->IntegerValue();
   } else if (args[0]->IsObject()) {
@@ -338,7 +338,7 @@ void Int64::Or(const FunctionCallbackInfo<Value>& args) {
     args.GetReturnValue().SetUndefined();
   }
   Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
-  uint64_t value;
+  uint64_t value = 0;
   if (args[0]->IsNumber()) {
     value = obj->mValue | args[0]->IntegerValue();
   } else if (args[0]->IsObject()) {
@@ -367,7 +367,7 @@ void Int64::Xor(const FunctionCallbackInfo<Value>& args) {
     args.GetReturnValue().SetUndefined();
   }
   Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
-  uint64_t value;
+  uint64_t value = 0;
   if (args[0]->IsNumber()) {
     value = obj->mValue ^ args[0]->IntegerValue();
   } else if (args[0]->IsObject()) {
@@ -396,7 +396,7 @@ void Int64::Add(const FunctionCallbackInfo<Value>& args) {
     args.GetReturnValue().SetUndefined();
   }
   Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
-  uint64_t value;
+  uint64_t value = 0;
   if (args[0]->IsNumber()) {
     value = obj->mValue + args[0]->IntegerValue();
   } else if (args[0]->IsObject()) {
@@ -425,7 +425,7 @@ void Int64::Sub(const FunctionCallbackInfo<Value>& args) {
     args.GetReturnValue().SetUndefined();
   }
   Int64* obj = ObjectWrap::Unwrap<Int64>(args.This());
-  uint64_t value;
+  uint64_t value = 0;
   if (args[0]->IsNumber()) {
     value = obj->mValue - args[0]->IntegerValue();
   } else if (args[0]->IsObject()) {
