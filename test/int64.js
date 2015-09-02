@@ -1,7 +1,6 @@
 var Int64 = require('../int64'),
     chai = require('chai'),
-    expect = chai.expect,
-    inherits = require('util').inherits;
+    expect = chai.expect;
 
 describe('Int64', function testInt64() {
   it('can be constructed', function testConstructor() {
@@ -122,14 +121,5 @@ describe('Int64', function testInt64() {
         b = new Int64(3),
         c = new Int64(6);
     expect(a.multiply(b).equals(c)).to.be.true;
-  });
-
-  it('can be subclassed', function testSubclass() {
-    function MyInt64() {
-      Int64.apply(this, arguments);
-    };
-    inherits(MyInt64, Int64);
-    
-    expect(new MyInt64(123).toNumber()).to.equal(123);
   });
 });

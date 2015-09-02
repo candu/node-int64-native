@@ -121,7 +121,6 @@ NAN_METHOD(Int64::ToNumber) {
   info.GetReturnValue().Set(Nan::New(value));
 }
 
-// TODO: DRY with ToNumber
 NAN_METHOD(Int64::ValueOf) {
   Int64* obj = ObjectWrap::Unwrap<Int64>(info.Holder());
   double value = obj->mValue;
