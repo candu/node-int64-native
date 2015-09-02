@@ -1,4 +1,3 @@
-var path = require('path');
+var nativeModule = require('bindings')('Int64.node'); 
 
-var modulePath = path.join(__dirname, 'build', 'Release', 'Int64');
-module.exports = require(modulePath).Int64;
+module.exports = nativeModule.Int64;
