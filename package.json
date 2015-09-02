@@ -23,5 +23,8 @@
     "mocha": "1.8.x"
   },
   "license": "MIT",
-  "readmeFilename": "README.md"
+  "readmeFilename": "README.md",
+  "dependencies": {
+    "nan": "^2.0.8"
+  }
 }

@@ -118,15 +118,18 @@ describe('Int64', function testInt64() {
           b = other.toNumber();
       return new Int64(a * b);
     };
-    expect(new Int64(2).multiply(new Int64(3))).to.equal(6);
+    var a = new Int64(2),
+        b = new Int64(3),
+        c = new Int64(6);
+    expect(a.multiply(b).equals(c)).to.be.true;
   });
 
   it('can be subclassed', function testSubclass() {
     function MyInt64() {
-      MyInt64.super_.apply(this, arguments);
+      Int64.apply(this, arguments);
     };
     inherits(MyInt64, Int64);
-
+    
     expect(new MyInt64(123).toNumber()).to.equal(123);
   });
 });
