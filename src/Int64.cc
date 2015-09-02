@@ -188,13 +188,13 @@ NAN_METHOD(Int64::Compare) {
 NAN_METHOD(Int64::High32) {
   Int64* obj = ObjectWrap::Unwrap<Int64>(info.Holder());
   uint32_t highBits = static_cast<uint32_t>(obj->mValue >> 32);
-  info.GetReturnValue().Set(highBits);
+  info.GetReturnValue().Set(Nan::New(highBits));
 }
 
 NAN_METHOD(Int64::Low32) {
   Int64* obj = ObjectWrap::Unwrap<Int64>(info.Holder());
   uint32_t lowBits = static_cast<uint32_t>(obj->mValue & 0xffffffffull);
-  info.GetReturnValue().Set(lowBits);
+  info.GetReturnValue().Set(Nan::New(lowBits));
 }
 
 NAN_METHOD(Int64::ShiftLeft) {
