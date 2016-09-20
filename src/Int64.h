@@ -38,6 +38,9 @@ class Int64 : public Nan::ObjectWrap {
   static NAN_METHOD(Or);
   static NAN_METHOD(Xor);
   static NAN_METHOD(Add);
+  static NAN_METHOD(Mul);
+  static NAN_METHOD(Div);
+  static NAN_METHOD(Mod);
   static NAN_METHOD(Sub);
 };
 
