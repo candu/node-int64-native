@@ -1,5 +1,5 @@
-#ifndef INT64_H
-#define INT64_H
+#ifndef UINT64_H
+#define UINT64_H
 
 #include <node.h>
 #include <nan.h>
@@ -8,19 +8,19 @@
 using namespace node;
 using namespace v8;
 
-class Int64 : public Nan::ObjectWrap {
+class UInt64 : public Nan::ObjectWrap {
  public:
   static void Init(Handle<Object> exports);
 
  private:
-  Int64();
-  Int64(const Local<Number>& n);
-  Int64(const Local<Array>& n);
-  Int64(const Local<Number>& hi, const Local<Number>& lo);
-  Int64(const Local<String>& s);
-  ~Int64();
+  UInt64();
+  UInt64(const Local<Number>& n);
+  UInt64(const Local<Array>& n);
+  UInt64(const Local<Number>& hi, const Local<Number>& lo);
+  UInt64(const Local<String>& s);
+  ~UInt64();
 
-  int64_t mValue;
+  uint64_t mValue;
 
   static Nan::Persistent<Function> constructor;
   static NAN_METHOD(New);
@@ -42,7 +42,6 @@ class Int64 : public Nan::ObjectWrap {
   static NAN_METHOD(Mul);
   static NAN_METHOD(Div);
   static NAN_METHOD(Mod);
-  static NAN_METHOD(Neg);
   static NAN_METHOD(Sub);
 };
 
