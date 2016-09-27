@@ -35,6 +35,7 @@ void Int64::Init(Handle<Object> exports) {
   Nan::SetPrototypeMethod(tpl, "low32", Low32);
   Nan::SetPrototypeMethod(tpl, "shiftLeft", ShiftLeft);
   Nan::SetPrototypeMethod(tpl, "shiftRight", ShiftRight);
+  Nan::SetPrototypeMethod(tpl, "unsignedShiftRight", UnsignedShiftRight);
   Nan::SetPrototypeMethod(tpl, "and", And);
   Nan::SetPrototypeMethod(tpl, "or", Or);
   Nan::SetPrototypeMethod(tpl, "xor", Xor);
@@ -44,6 +45,10 @@ void Int64::Init(Handle<Object> exports) {
   Nan::SetPrototypeMethod(tpl, "mod", Mod);
   Nan::SetPrototypeMethod(tpl, "neg", Neg);
   Nan::SetPrototypeMethod(tpl, "sub", Sub);
+
+  Nan::SetPrototypeMethod(tpl, "compare_un", CompareUnsigned);
+  Nan::SetPrototypeMethod(tpl, "div_un", DivUn);
+  Nan::SetPrototypeMethod(tpl, "mod_un", ModUn);
 
   constructor.Reset(tpl->GetFunction());
   exports->Set(Nan::New("Int64").ToLocalChecked(), tpl->GetFunction());
@@ -215,6 +220,24 @@ NAN_METHOD(Int64::Compare) {
   info.GetReturnValue().Set(Nan::New(cmp));
 }
 
+NAN_METHOD(Int64::CompareUnsigned) {
+  if (info.Length() < 1) {
+    Nan::ThrowTypeError("Argument required");
+  }
+  if (!info[0]->IsObject()) {
+    Nan::ThrowTypeError("Object expected");
+  }
+  Int64* obj = ObjectWrap::Unwrap<Int64>(info.Holder());
+  Int64* otherObj = ObjectWrap::Unwrap<Int64>(info[0]->ToObject());
+  int32_t cmp = 0;
+  if (static_cast<uint64_t>(obj->mValue) < static_cast<uint64_t>(otherObj->mValue)) {
+    cmp = -1;
+  } else if (static_cast<uint64_t>(obj->mValue) > static_cast<uint64_t>(otherObj->mValue)) {
+    cmp = 1;
+  }
+  info.GetReturnValue().Set(Nan::New(cmp));
+}
+
 NAN_METHOD(Int64::High32) {
   Int64* obj = ObjectWrap::Unwrap<Int64>(info.Holder());
   int32_t highBits = static_cast<int32_t>(obj->mValue >> 32);
@@ -258,6 +281,27 @@ NAN_METHOD(Int64::ShiftRight) {
   Int64* obj = ObjectWrap::Unwrap<Int64>(info.Holder());
   int64_t shiftBy = static_cast<int64_t>(info[0]->ToNumber()->NumberValue());
   int64_t value = obj->mValue >> shiftBy;
+  Local<Value> argv[2] = {
+    Nan::New(static_cast<int32_t>(value >> 32)),
+    Nan::New(static_cast<int32_t>(value & 0xffffffffull))
+  };
+  v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
+  Local<Object> instance = cons->NewInstance(2, argv);
+  info.GetReturnValue().Set(instance);
+}
+
+NAN_METHOD(Int64::UnsignedShiftRight) {
+  if (info.Length() < 1) {
+    Nan::ThrowTypeError("Argument required");
+    return;
+  }
+  if (!info[0]->IsNumber()) {
+    Nan::ThrowTypeError("Integer expected");
+    return;
+  }
+  Int64* obj = ObjectWrap::Unwrap<Int64>(info.Holder());
+  uint64_t shiftBy = static_cast<uint64_t>(info[0]->ToNumber()->NumberValue());
+  uint64_t value = static_cast<uint64_t>(obj->mValue) >> shiftBy;
   Local<Value> argv[2] = {
     Nan::New(static_cast<int32_t>(value >> 32)),
     Nan::New(static_cast<int32_t>(value & 0xffffffffull))
@@ -417,6 +461,31 @@ NAN_METHOD(Int64::Div) {
   info.GetReturnValue().Set(instance);
 }
 
+NAN_METHOD(Int64::DivUn) {
+  if (info.Length() < 1) {
+    Nan::ThrowTypeError("Argument required");
+    return;
+  }
+  Int64* obj = ObjectWrap::Unwrap<Int64>(info.Holder());
+  uint64_t value;
+  if (info[0]->IsNumber()) {
+    value = static_cast<uint64_t>(obj->mValue) / static_cast<uint64_t>(info[0]->IntegerValue());
+  } else if (info[0]->IsObject()) {
+    Int64* otherObj = ObjectWrap::Unwrap<Int64>(info[0]->ToObject());
+    value = static_cast<uint64_t>(obj->mValue) / static_cast<uint64_t>(otherObj->mValue);
+  } else {
+    Nan::ThrowTypeError("Object or number expected");
+    return;
+  }
+  Local<Value> argv[2] = {
+    Nan::New(static_cast<int32_t>(value >> 32)),
+    Nan::New(static_cast<int32_t>(value & 0xffffffffull))
+  };
+  v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
+  Local<Object> instance = cons->NewInstance(2, argv);
+  info.GetReturnValue().Set(instance);
+}
+
 NAN_METHOD(Int64::Mod) {
   if (info.Length() < 1) {
     Nan::ThrowTypeError("Argument required");
@@ -429,6 +498,31 @@ NAN_METHOD(Int64::Mod) {
   } else if (info[0]->IsObject()) {
     Int64* otherObj = ObjectWrap::Unwrap<Int64>(info[0]->ToObject());
     value = obj->mValue % otherObj->mValue;
+  } else {
+    Nan::ThrowTypeError("Object or number expected");
+    return;
+  }
+  Local<Value> argv[2] = {
+    Nan::New(static_cast<int32_t>(value >> 32)),
+    Nan::New(static_cast<int32_t>(value & 0xffffffffull))
+  };
+  v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
+  Local<Object> instance = cons->NewInstance(2, argv);
+  info.GetReturnValue().Set(instance);
+}
+
+NAN_METHOD(Int64::ModUn) {
+  if (info.Length() < 1) {
+    Nan::ThrowTypeError("Argument required");
+    return;
+  }
+  Int64* obj = ObjectWrap::Unwrap<Int64>(info.Holder());
+  uint64_t value;
+  if (info[0]->IsNumber()) {
+    value = static_cast<uint64_t>(obj->mValue) % static_cast<uint64_t>(info[0]->IntegerValue());
+  } else if (info[0]->IsObject()) {
+    Int64* otherObj = ObjectWrap::Unwrap<Int64>(info[0]->ToObject());
+    value = static_cast<uint64_t>(obj->mValue) % static_cast<uint64_t>(otherObj->mValue);
   } else {
     Nan::ThrowTypeError("Object or number expected");
     return;

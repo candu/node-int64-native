@@ -31,10 +31,12 @@ class Int64 : public Nan::ObjectWrap {
   static NAN_METHOD(ToSignedDecimalString);
   static NAN_METHOD(Equals);
   static NAN_METHOD(Compare);
+  static NAN_METHOD(CompareUnsigned);
   static NAN_METHOD(High32);
   static NAN_METHOD(Low32);
   static NAN_METHOD(ShiftLeft);
   static NAN_METHOD(ShiftRight);
+  static NAN_METHOD(UnsignedShiftRight);
   static NAN_METHOD(And);
   static NAN_METHOD(Or);
   static NAN_METHOD(Xor);
@@ -42,6 +44,8 @@ class Int64 : public Nan::ObjectWrap {
   static NAN_METHOD(Mul);
   static NAN_METHOD(Div);
   static NAN_METHOD(Mod);
+  static NAN_METHOD(DivUn);
+  static NAN_METHOD(ModUn);
   static NAN_METHOD(Neg);
   static NAN_METHOD(Sub);
 };
