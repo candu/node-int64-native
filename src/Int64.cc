@@ -134,7 +134,7 @@ NAN_METHOD(Int64::New) {
   } else {
     v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
     if (info.Length() == 0) {
-      v8::Local<v8::Value> argv[0] = {};
+      v8::Local<v8::Value> argv[1] = {Local<String>()};
       info.GetReturnValue().Set(cons->NewInstance(0, argv));
     } else if (info.Length() == 1) {
       v8::Local<v8::Value> argv[1] = {info[0]};
@@ -148,7 +148,7 @@ NAN_METHOD(Int64::New) {
 
 NAN_METHOD(Int64::ToNumber) {
   Int64* obj = ObjectWrap::Unwrap<Int64>(info.Holder());
-  double value = obj->mValue;
+  double value = static_cast<double>(obj->mValue);
   if (value >= 1ull << 53) {
     value = numeric_limits<double>::infinity();
   }
@@ -157,7 +157,7 @@ NAN_METHOD(Int64::ToNumber) {
 
 NAN_METHOD(Int64::ValueOf) {
   Int64* obj = ObjectWrap::Unwrap<Int64>(info.Holder());
-  double value = obj->mValue;
+  double value = static_cast<double>(obj->mValue);
 
   if (value >= 1ull << 53) {
     value = numeric_limits<double>::infinity();
