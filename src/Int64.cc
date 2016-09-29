@@ -106,6 +106,19 @@ Int64::Int64(const Local<String>& s) {
 
 Int64::~Int64() {}
 
+Local<Object> Int64::InitFromValue(Isolate* isolate, int64_t value) {
+  Local<Array> result_bytes = Array::New(isolate);
+  int8_t n = 0;
+  do {
+    Local<Number> byte = Number::New(isolate, value & 0xff);
+    result_bytes->Set(n++, byte);
+  } while (value >>= 8);
+
+  Local<Value> argv[1] = { result_bytes };
+  v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
+  return cons->NewInstance(1, argv);
+}
+
 NAN_METHOD(Int64::New) {
   if (info.IsConstructCall()) {
     Int64* obj = NULL;
@@ -260,12 +273,8 @@ NAN_METHOD(Int64::ShiftLeft) {
   Int64* obj = ObjectWrap::Unwrap<Int64>(info.Holder());
   int64_t shiftBy = static_cast<int64_t>(info[0]->ToNumber()->NumberValue());
   int64_t value = obj->mValue << shiftBy;
-  Local<Value> argv[2] = {
-    Nan::New(static_cast<int32_t>(value >> 32)),
-    Nan::New(static_cast<int32_t>(value & 0xffffffffull))
-  };
-  v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
-  Local<Object> instance = cons->NewInstance(2, argv);
+  Isolate* isolate = info.GetIsolate();
+  Local<Object> instance = InitFromValue(isolate, value);
   info.GetReturnValue().Set(instance);
 }
 
@@ -281,12 +290,8 @@ NAN_METHOD(Int64::ShiftRight) {
   Int64* obj = ObjectWrap::Unwrap<Int64>(info.Holder());
   int64_t shiftBy = static_cast<int64_t>(info[0]->ToNumber()->NumberValue());
   int64_t value = obj->mValue >> shiftBy;
-  Local<Value> argv[2] = {
-    Nan::New(static_cast<int32_t>(value >> 32)),
-    Nan::New(static_cast<int32_t>(value & 0xffffffffull))
-  };
-  v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
-  Local<Object> instance = cons->NewInstance(2, argv);
+  Isolate* isolate = info.GetIsolate();
+  Local<Object> instance = InitFromValue(isolate, value);
   info.GetReturnValue().Set(instance);
 }
 
@@ -302,12 +307,8 @@ NAN_METHOD(Int64::UnsignedShiftRight) {
   Int64* obj = ObjectWrap::Unwrap<Int64>(info.Holder());
   uint64_t shiftBy = static_cast<uint64_t>(info[0]->ToNumber()->NumberValue());
   uint64_t value = static_cast<uint64_t>(obj->mValue) >> shiftBy;
-  Local<Value> argv[2] = {
-    Nan::New(static_cast<int32_t>(value >> 32)),
-    Nan::New(static_cast<int32_t>(value & 0xffffffffull))
-  };
-  v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
-  Local<Object> instance = cons->NewInstance(2, argv);
+  Isolate* isolate = info.GetIsolate();
+  Local<Object> instance = InitFromValue(isolate, value);
   info.GetReturnValue().Set(instance);
 }
 
@@ -327,12 +328,8 @@ NAN_METHOD(Int64::And) {
     Nan::ThrowTypeError("Object or number expected");
     return;
   }
-  Local<Value> argv[2] = {
-    Nan::New(static_cast<int32_t>(value >> 32)),
-    Nan::New(static_cast<int32_t>(value & 0xffffffffull))
-  };
-  v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
-  Local<Object> instance = cons->NewInstance(2, argv);
+  Isolate* isolate = info.GetIsolate();
+  Local<Object> instance = InitFromValue(isolate, value);
   info.GetReturnValue().Set(instance);
 }
 
@@ -352,12 +349,8 @@ NAN_METHOD(Int64::Or) {
     Nan::ThrowTypeError("Object or number expected");
     return;
   }
-  Local<Value> argv[2] = {
-    Nan::New(static_cast<int32_t>(value >> 32)),
-    Nan::New(static_cast<int32_t>(value & 0xffffffffull))
-  };
-  v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
-  Local<Object> instance = cons->NewInstance(2, argv);
+  Isolate* isolate = info.GetIsolate();
+  Local<Object> instance = InitFromValue(isolate, value);
   info.GetReturnValue().Set(instance);
 }
 
@@ -377,12 +370,8 @@ NAN_METHOD(Int64::Xor) {
     Nan::ThrowTypeError("Object or number expected");
     return;
   }
-  Local<Value> argv[2] = {
-    Nan::New(static_cast<int32_t>(value >> 32)),
-    Nan::New(static_cast<int32_t>(value & 0xffffffffull))
-  };
-  v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
-  Local<Object> instance = cons->NewInstance(2, argv);
+  Isolate* isolate = info.GetIsolate();
+  Local<Object> instance = InitFromValue(isolate, value);
   info.GetReturnValue().Set(instance);
 }
 
@@ -392,7 +381,9 @@ NAN_METHOD(Int64::Add) {
     return;
   }
   Int64* obj = ObjectWrap::Unwrap<Int64>(info.Holder());
+
   int64_t value;
+
   if (info[0]->IsNumber()) {
     value = obj->mValue + info[0]->IntegerValue();
   } else if (info[0]->IsObject()) {
@@ -402,12 +393,9 @@ NAN_METHOD(Int64::Add) {
     Nan::ThrowTypeError("Object or number expected");
     return;
   }
-  Local<Value> argv[2] = {
-    Nan::New(static_cast<int32_t>(value >> 32)),
-    Nan::New(static_cast<int32_t>(value & 0xffffffffull))
-  };
-  v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
-  Local<Object> instance = cons->NewInstance(2, argv);
+
+  Isolate* isolate = info.GetIsolate();
+  Local<Object> instance = InitFromValue(isolate, value);
   info.GetReturnValue().Set(instance);
 }
 
@@ -427,12 +415,8 @@ NAN_METHOD(Int64::Mul) {
     Nan::ThrowTypeError("Object or number expected");
     return;
   }
-  Local<Value> argv[2] = {
-    Nan::New(static_cast<int32_t>(value >> 32)),
-    Nan::New(static_cast<int32_t>(value & 0xffffffffull))
-  };
-  v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
-  Local<Object> instance = cons->NewInstance(2, argv);
+  Isolate* isolate = info.GetIsolate();
+  Local<Object> instance = InitFromValue(isolate, value);
   info.GetReturnValue().Set(instance);
 }
 
@@ -452,12 +436,8 @@ NAN_METHOD(Int64::Div) {
     Nan::ThrowTypeError("Object or number expected");
     return;
   }
-  Local<Value> argv[2] = {
-    Nan::New(static_cast<int32_t>(value >> 32)),
-    Nan::New(static_cast<int32_t>(value & 0xffffffffull))
-  };
-  v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
-  Local<Object> instance = cons->NewInstance(2, argv);
+  Isolate* isolate = info.GetIsolate();
+  Local<Object> instance = InitFromValue(isolate, value);
   info.GetReturnValue().Set(instance);
 }
 
@@ -477,12 +457,8 @@ NAN_METHOD(Int64::DivUn) {
     Nan::ThrowTypeError("Object or number expected");
     return;
   }
-  Local<Value> argv[2] = {
-    Nan::New(static_cast<int32_t>(value >> 32)),
-    Nan::New(static_cast<int32_t>(value & 0xffffffffull))
-  };
-  v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
-  Local<Object> instance = cons->NewInstance(2, argv);
+  Isolate* isolate = info.GetIsolate();
+  Local<Object> instance = InitFromValue(isolate, value);
   info.GetReturnValue().Set(instance);
 }
 
@@ -502,12 +478,8 @@ NAN_METHOD(Int64::Mod) {
     Nan::ThrowTypeError("Object or number expected");
     return;
   }
-  Local<Value> argv[2] = {
-    Nan::New(static_cast<int32_t>(value >> 32)),
-    Nan::New(static_cast<int32_t>(value & 0xffffffffull))
-  };
-  v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
-  Local<Object> instance = cons->NewInstance(2, argv);
+  Isolate* isolate = info.GetIsolate();
+  Local<Object> instance = InitFromValue(isolate, value);
   info.GetReturnValue().Set(instance);
 }
 
@@ -527,24 +499,16 @@ NAN_METHOD(Int64::ModUn) {
     Nan::ThrowTypeError("Object or number expected");
     return;
   }
-  Local<Value> argv[2] = {
-    Nan::New(static_cast<int32_t>(value >> 32)),
-    Nan::New(static_cast<int32_t>(value & 0xffffffffull))
-  };
-  v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
-  Local<Object> instance = cons->NewInstance(2, argv);
+  Isolate* isolate = info.GetIsolate();
+  Local<Object> instance = InitFromValue(isolate, value);
   info.GetReturnValue().Set(instance);
 }
 
 NAN_METHOD(Int64::Neg) {
   Int64* obj = ObjectWrap::Unwrap<Int64>(info.Holder());
   int64_t value = -obj->mValue;
-  Local<Value> argv[2] = {
-    Nan::New(static_cast<int32_t>(value >> 32)),
-    Nan::New(static_cast<int32_t>(value & 0xffffffffull))
-  };
-  v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
-  Local<Object> instance = cons->NewInstance(2, argv);
+  Isolate* isolate = info.GetIsolate();
+  Local<Object> instance = InitFromValue(isolate, value);
   info.GetReturnValue().Set(instance);
 }
 
@@ -564,11 +528,7 @@ NAN_METHOD(Int64::Sub) {
     Nan::ThrowTypeError("Object or number expected");
     return;
   }
-  Local<Value> argv[2] = {
-    Nan::New(static_cast<int32_t>(value >> 32)),
-    Nan::New(static_cast<int32_t>(value & 0xffffffffull))
-  };
-  v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
-  Local<Object> instance = cons->NewInstance(2, argv);
+  Isolate* isolate = info.GetIsolate();
+  Local<Object> instance = InitFromValue(isolate, value);
   info.GetReturnValue().Set(instance);
 }

@@ -22,6 +22,8 @@ class Int64 : public Nan::ObjectWrap {
 
   int64_t mValue;
 
+  static Local<Object> InitFromValue(Isolate* isolate, int64_t value);
+
   static Nan::Persistent<Function> constructor;
   static NAN_METHOD(New);
   static NAN_METHOD(ToNumber);
