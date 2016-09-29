@@ -108,11 +108,12 @@ Int64::~Int64() {}
 
 Local<Object> Int64::InitFromValue(Isolate* isolate, int64_t value) {
   Local<Array> result_bytes = Array::New(isolate);
+  uint64_t val = static_cast<uint64_t>(value);
   int8_t n = 0;
   do {
-    Local<Number> byte = Number::New(isolate, value & 0xff);
+    Local<Number> byte = Number::New(isolate, val & 0xff);
     result_bytes->Set(n++, byte);
-  } while (value >>= 8);
+  } while (val >>= 8);
 
   Local<Value> argv[1] = { result_bytes };
   v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
