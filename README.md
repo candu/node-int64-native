@@ -22,7 +22,7 @@ client.
 
 ### from source
 
-    git clone git://github.com/candu/node-int64-native.git
+    git clone git://github.com/CryptoManiac/int64-native.git
     cd node-int64-native
     npm install
 
@@ -48,11 +48,14 @@ You can create an `Int64` as follows:
     var x = new Int64(),
         y = new Int64(42),
         z = new Int64(0xfedcba98, 0x76543210),
-        w = new Int64('0xfedcba9876543210')
+        w = new Int64('0xfedcba9876543210'),
+        v = new Int64([0xfe, 0xdc, 0xba, 0x98, 0x76, 0x54, 0x32, 0x10']);
+
     expect(x.toString()).to.equal('0x0000000000000000');
     expect(y.toString()).to.equal('0x000000000000002a');
     expect(z.toString()).to.equal('0xfedcba9876543210');
     expect(w.toString()).to.equal('0xfedcba9876543210');
+    expect(v.toString()).to.equal('0xfedcba9876543210');
 
 The last two methods allow you to represent `uint64_t` values larger than
 `(1 << 53) - 1`.
@@ -67,11 +70,13 @@ The last two methods allow you to represent `uint64_t` values larger than
     var x = new Int64(),
         y = new Int64(42),
         z = new Int64(0xfedcba98, 0x76543210),
-        w = new Int64('0xfedcba9876543210')
+        w = new Int64('0xfedcba9876543210'),
+        v = new Int64([0xfe, 0xdc, 0xba, 0x98, 0x76, 0x54, 0x32, 0x10']);
     expect(+x).to.equal(0);
     expect(+y).to.equal(42);
     expect(+z).to.equal(Infinity);
     expect(+w).to.equal(Infinity);
+    expect(+v).to.equal(Infinity);
 
 Values larger than `(1 << 53) - 1` will be converted to `Infinity`, since
 they cannot be accurately represented using JavaScript's `Number` type.
