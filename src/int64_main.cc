@@ -6,7 +6,6 @@
 #include <v8.h>
 
 #include "Int64.h"
-#include "UInt64.h"
 
 using namespace node;
 using namespace v8;
