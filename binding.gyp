@@ -3,7 +3,7 @@
     {
       "target_name": "Int64",
       "sources": [
-        "src/main.cc",
+        "src/int64_main.cc",
         "src/Int64.cc"
       ],
       "include_dirs" : [

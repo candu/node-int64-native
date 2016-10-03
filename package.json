@@ -1,17 +1,18 @@
 {
   "name": "int64-native",
   "version": "0.4.0",
-  "description": "A simple uint64_t wrapper for JavaScript",
+  "description": "A simple int64_t wrapper for JavaScript",
   "keywords": [
     "types",
     "int64",
+    "uint64",
     "bigint"
   ],
-  "homepage": "https://github.com/candu/node-int64-native",
+  "homepage": "https://github.com/CryptoManiac/int64-native",
   "author": {
-    "name": "Evan Savage",
-    "email": "savage.evan@gmail.com",
-    "url": "https://github.com/candu"
+    "name": "Alex D.",
+    "email": "balthazar.ad@gmail.com",
+    "url": "https://github.com/CryptoManiac"
   },
   "main": "int64",
   "scripts": {
@@ -23,9 +24,23 @@
     "mocha": "1.8.x"
   },
   "license": "MIT",
-  "readmeFilename": "README.md",
   "dependencies": {
     "bindings": "1.2.x",
-    "nan": "^2.4.0"
-  }
+    "nan": "^2.0.8"
+  },
+  "gitHead": "e26e0d555ba07d9c1ee27c95e8251a1fc1f625f6",
+  "_id": "int64-native@0.4.0",
+  "_from": "int64-native@latest",
+  "_npmVersion": "2.11.2",
+  "_nodeVersion": "0.12.5",
+  "_npmUser": {
+    "name": "Alex D.",
+    "email": "balthazar.ad@gmail.com"
+  },
+  "maintainers": [
+    {
+      "name": "Alex D.",
+      "email": "balthazar.ad@gmail.com"
+    }
+  ]
 }
