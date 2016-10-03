@@ -24,6 +24,7 @@ void Int64::Init(Handle<Object> exports) {
   tpl->SetClassName(Nan::New("Int64").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
+  Nan::SetPrototypeMethod(tpl, "toBytes", ToBytes);
   Nan::SetPrototypeMethod(tpl, "toNumber", ToNumber);
   Nan::SetPrototypeMethod(tpl, "valueOf", ValueOf);
   Nan::SetPrototypeMethod(tpl, "toString", ToString);
@@ -158,6 +159,20 @@ NAN_METHOD(Int64::New) {
       info.GetReturnValue().Set(cons->NewInstance(2, argv));
     }
   }
+}
+
+NAN_METHOD(Int64::ToBytes) {
+  Isolate* isolate = info.GetIsolate();
+  Int64* obj = ObjectWrap::Unwrap<Int64>(info.Holder());
+  Local<Array> result_bytes = Array::New(isolate);
+  uint64_t val = static_cast<uint64_t>(obj->mValue);
+  int8_t n = 0;
+  do {
+    Local<Number> byte = Number::New(isolate, val & 0xff);
+    result_bytes->Set(n++, byte);
+  } while (val >>= 8);
+
+  info.GetReturnValue().Set(result_bytes);
 }
 
 NAN_METHOD(Int64::ToNumber) {

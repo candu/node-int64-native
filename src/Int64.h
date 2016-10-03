@@ -27,6 +27,7 @@ class Int64 : public Nan::ObjectWrap {
   static Nan::Persistent<Function> constructor;
   static NAN_METHOD(New);
   static NAN_METHOD(ToNumber);
+  static NAN_METHOD(ToBytes);
   static NAN_METHOD(ValueOf);
   static NAN_METHOD(ToString);
   static NAN_METHOD(ToUnsignedDecimalString);
