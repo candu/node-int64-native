@@ -82,13 +82,13 @@ NAN_METHOD(Int64::New) {
       obj = new Int64();
     } else if (info.Length() == 1) {
       if (info[0]->IsNumber()) {
-        obj = new Int64(info[0]->ToNumber());
+        obj = new Int64(Nan::To<v8::Number>(info[0]).ToLocalChecked());
       } else if (info[0]->IsString()) {
         obj = new Int64(info[0]->ToString());
       }
     } else if (info.Length() == 2) {
       if (info[0]->IsNumber() && info[1]->IsNumber()) {
-        obj = new Int64(info[0]->ToNumber(), info[1]->ToNumber());
+        obj = new Int64(Nan::To<v8::Number>(info[0]).ToLocalChecked(), Nan::To<v8::Number>(info[1]).ToLocalChecked());
       }
     }
     if (obj == NULL) {
@@ -101,13 +101,13 @@ NAN_METHOD(Int64::New) {
     v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
     if (info.Length() == 0) {
       v8::Local<v8::Value> argv[0] = {};
-      info.GetReturnValue().Set(cons->NewInstance(0, argv));
+      info.GetReturnValue().Set(Nan::NewInstance(cons, 0, argv).ToLocalChecked());
     } else if (info.Length() == 1) {
       v8::Local<v8::Value> argv[1] = {info[0]};
-      info.GetReturnValue().Set(cons->NewInstance(1, argv));
+      info.GetReturnValue().Set(Nan::NewInstance(cons, 1, argv).ToLocalChecked());
     } else if (info.Length() == 2) {
       v8::Local<v8::Value> argv[2] = {info[0], info[1]};
-      info.GetReturnValue().Set(cons->NewInstance(2, argv));
+      info.GetReturnValue().Set(Nan::NewInstance(cons, 2, argv).ToLocalChecked());
     }
   }
 }
@@ -205,14 +205,14 @@ NAN_METHOD(Int64::ShiftLeft) {
     Nan::ThrowTypeError("Integer expected");
   }
   Int64* obj = ObjectWrap::Unwrap<Int64>(info.Holder());
-  uint64_t shiftBy = static_cast<uint64_t>(info[0]->ToNumber()->NumberValue());
+  uint64_t shiftBy = static_cast<uint64_t>(Nan::To<v8::Number>(info[0]).ToLocalChecked()->NumberValue());
   uint64_t value = obj->mValue << shiftBy;
   Local<Value> argv[2] = {
     Nan::New(static_cast<uint32_t>(value >> 32)),
     Nan::New(static_cast<uint32_t>(value & 0xffffffffull))
   };
   v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
-  Local<Object> instance = cons->NewInstance(2, argv);
+  Local<Object> instance = Nan::NewInstance(cons, 2, argv).ToLocalChecked();
   info.GetReturnValue().Set(instance);
 }
 
@@ -226,14 +226,14 @@ NAN_METHOD(Int64::ShiftRight) {
     return;
   }
   Int64* obj = ObjectWrap::Unwrap<Int64>(info.Holder());
-  uint64_t shiftBy = static_cast<uint64_t>(info[0]->ToNumber()->NumberValue());
+  uint64_t shiftBy = static_cast<uint64_t>(Nan::To<v8::Number>(info[0]).ToLocalChecked()->NumberValue());
   uint64_t value = obj->mValue >> shiftBy;
   Local<Value> argv[2] = {
     Nan::New(static_cast<uint32_t>(value >> 32)),
     Nan::New(static_cast<uint32_t>(value & 0xffffffffull))
   };
   v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
-  Local<Object> instance = cons->NewInstance(2, argv);
+  Local<Object> instance = Nan::NewInstance(cons, 2, argv).ToLocalChecked();
   info.GetReturnValue().Set(instance);
 }
 
@@ -258,7 +258,7 @@ NAN_METHOD(Int64::And) {
     Nan::New(static_cast<uint32_t>(value & 0xffffffffull))
   };
   v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
-  Local<Object> instance = cons->NewInstance(2, argv);
+  Local<Object> instance = Nan::NewInstance(cons, 2, argv).ToLocalChecked();
   info.GetReturnValue().Set(instance);
 }
 
@@ -283,7 +283,7 @@ NAN_METHOD(Int64::Or) {
     Nan::New(static_cast<uint32_t>(value & 0xffffffffull))
   };
   v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
-  Local<Object> instance = cons->NewInstance(2, argv);
+  Local<Object> instance = Nan::NewInstance(cons, 2, argv).ToLocalChecked();
   info.GetReturnValue().Set(instance);
 }
 
@@ -308,7 +308,7 @@ NAN_METHOD(Int64::Xor) {
     Nan::New(static_cast<uint32_t>(value & 0xffffffffull))
   };
   v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
-  Local<Object> instance = cons->NewInstance(2, argv);
+  Local<Object> instance = Nan::NewInstance(cons, 2, argv).ToLocalChecked();
   info.GetReturnValue().Set(instance);
 }
 
@@ -333,7 +333,7 @@ NAN_METHOD(Int64::Add) {
     Nan::New(static_cast<uint32_t>(value & 0xffffffffull))
   };
   v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
-  Local<Object> instance = cons->NewInstance(2, argv);
+  Local<Object> instance = Nan::NewInstance(cons, 2, argv).ToLocalChecked();
   info.GetReturnValue().Set(instance);
 }
 
@@ -358,6 +358,6 @@ NAN_METHOD(Int64::Sub) {
     Nan::New(static_cast<uint32_t>(value & 0xffffffffull))
   };
   v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
-  Local<Object> instance = cons->NewInstance(2, argv);
+  Local<Object> instance = Nan::NewInstance(cons, 2, argv).ToLocalChecked();
   info.GetReturnValue().Set(instance);
 }
