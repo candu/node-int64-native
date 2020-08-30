@@ -10,8 +10,8 @@
 using namespace node;
 using namespace v8;
 
-void InitAll(Handle<Object> exports) {
-  Int64::Init(exports);
+NAN_MODULE_INIT(InitAll) {
+  Int64::Init(target);
 }
 
 NODE_MODULE(Int64, InitAll)

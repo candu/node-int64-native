@@ -17,9 +17,7 @@ using namespace v8;
 
 Nan::Persistent<Function> Int64::constructor;
 
-void Int64::Init(Handle<Object> exports) {
-  Nan::HandleScope scope;
-
+NAN_MODULE_INIT(Int64::Init) {
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("Int64").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
@@ -41,8 +39,8 @@ void Int64::Init(Handle<Object> exports) {
   Nan::SetPrototypeMethod(tpl, "add", Add);
   Nan::SetPrototypeMethod(tpl, "sub", Sub);
 
-  constructor.Reset(tpl->GetFunction());
-  exports->Set(Nan::New("Int64").ToLocalChecked(), tpl->GetFunction());
+  constructor.Reset(Nan::GetFunction(tpl).ToLocalChecked());
+  Nan::Set(target, Nan::New("Int64").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
 }
 
 Int64::Int64() {
@@ -50,12 +48,12 @@ Int64::Int64() {
 }
 
 Int64::Int64(const Local<Number>& n) {
-  mValue = static_cast<uint64_t>(n->NumberValue());
+  mValue = static_cast<uint64_t>(Nan::To<int64_t>(n).ToChecked());
 }
 
 Int64::Int64(const Local<Number>& hi, const Local<Number>& lo) {
-  uint32_t highBits = static_cast<uint32_t>(hi->NumberValue());
-  uint32_t lowBits = static_cast<uint32_t>(lo->NumberValue());
+  uint32_t highBits = static_cast<uint32_t>(Nan::To<uint32_t>(hi).ToChecked());
+  uint32_t lowBits = static_cast<uint32_t>(Nan::To<uint32_t>(lo).ToChecked());
   mValue =
     (static_cast<uint64_t>(highBits) << 32) |
     (static_cast<uint64_t>(lowBits));
@@ -84,7 +82,7 @@ NAN_METHOD(Int64::New) {
       if (info[0]->IsNumber()) {
         obj = new Int64(Nan::To<v8::Number>(info[0]).ToLocalChecked());
       } else if (info[0]->IsString()) {
-        obj = new Int64(info[0]->ToString());
+        obj = new Int64(Nan::To<String>(info[0]).ToLocalChecked());
       }
     } else if (info.Length() == 2) {
       if (info[0]->IsNumber() && info[1]->IsNumber()) {
@@ -171,7 +169,7 @@ NAN_METHOD(Int64::Equals) {
     Nan::ThrowTypeError("Object expected");
   }
   Int64* obj = ObjectWrap::Unwrap<Int64>(info.Holder());
-  Int64* otherObj = ObjectWrap::Unwrap<Int64>(info[0]->ToObject());
+  Int64* otherObj = ObjectWrap::Unwrap<Int64>(Nan::To<Object>(info[0]).ToLocalChecked());
   bool isEqual = obj->mValue == otherObj->mValue;
   info.GetReturnValue().Set(Nan::New(isEqual));
 }
@@ -184,7 +182,7 @@ NAN_METHOD(Int64::Compare) {
     Nan::ThrowTypeError("Object expected");
   }
   Int64* obj = ObjectWrap::Unwrap<Int64>(info.Holder());
-  Int64* otherObj = ObjectWrap::Unwrap<Int64>(info[0]->ToObject());
+  Int64* otherObj = ObjectWrap::Unwrap<Int64>(Nan::To<Object>(info[0]).ToLocalChecked());
   int32_t cmp = 0;
   if (obj->mValue < otherObj->mValue) {
     cmp = -1;
@@ -215,7 +213,7 @@ NAN_METHOD(Int64::ShiftLeft) {
   }
   Int64* obj = ObjectWrap::Unwrap<Int64>(info.Holder());
   uint64_t shiftBy = static_cast<uint64_t>(
-    Nan::To<v8::Number>(info[0]).ToLocalChecked()->NumberValue()
+    Nan::To<int64_t>(info[0]).ToChecked()
   );
   uint64_t value = obj->mValue << shiftBy;
   Local<Value> argv[2] = {
@@ -238,7 +236,7 @@ NAN_METHOD(Int64::ShiftRight) {
   }
   Int64* obj = ObjectWrap::Unwrap<Int64>(info.Holder());
   uint64_t shiftBy = static_cast<uint64_t>(
-    Nan::To<v8::Number>(info[0]).ToLocalChecked()->NumberValue()
+    Nan::To<int64_t>(info[0]).ToChecked()
   );
   uint64_t value = obj->mValue >> shiftBy;
   Local<Value> argv[2] = {
@@ -258,9 +256,9 @@ NAN_METHOD(Int64::And) {
   Int64* obj = ObjectWrap::Unwrap<Int64>(info.Holder());
   uint64_t value;
   if (info[0]->IsNumber()) {
-    value = obj->mValue & info[0]->IntegerValue();
+    value = obj->mValue & Nan::To<int64_t>(info[0]).ToChecked();
   } else if (info[0]->IsObject()) {
-    Int64* otherObj = ObjectWrap::Unwrap<Int64>(info[0]->ToObject());
+    Int64* otherObj = ObjectWrap::Unwrap<Int64>(Nan::To<Object>(info[0]).ToLocalChecked());
     value = obj->mValue & otherObj->mValue;
   } else {
     Nan::ThrowTypeError("Object or number expected");
@@ -283,9 +281,9 @@ NAN_METHOD(Int64::Or) {
   Int64* obj = ObjectWrap::Unwrap<Int64>(info.Holder());
   uint64_t value;
   if (info[0]->IsNumber()) {
-    value = obj->mValue | info[0]->IntegerValue();
+    value = obj->mValue | Nan::To<int64_t>(info[0]).ToChecked();
   } else if (info[0]->IsObject()) {
-    Int64* otherObj = ObjectWrap::Unwrap<Int64>(info[0]->ToObject());
+    Int64* otherObj = ObjectWrap::Unwrap<Int64>(Nan::To<Object>(info[0]).ToLocalChecked());
     value = obj->mValue | otherObj->mValue;
   } else {
     Nan::ThrowTypeError("Object or number expected");
@@ -308,9 +306,9 @@ NAN_METHOD(Int64::Xor) {
   Int64* obj = ObjectWrap::Unwrap<Int64>(info.Holder());
   uint64_t value;
   if (info[0]->IsNumber()) {
-    value = obj->mValue ^ info[0]->IntegerValue();
+    value = obj->mValue ^ Nan::To<int64_t>(info[0]).ToChecked();
   } else if (info[0]->IsObject()) {
-    Int64* otherObj = ObjectWrap::Unwrap<Int64>(info[0]->ToObject());
+    Int64* otherObj = ObjectWrap::Unwrap<Int64>(Nan::To<Object>(info[0]).ToLocalChecked());
     value = obj->mValue ^ otherObj->mValue;
   } else {
     Nan::ThrowTypeError("Object or number expected");
@@ -333,9 +331,9 @@ NAN_METHOD(Int64::Add) {
   Int64* obj = ObjectWrap::Unwrap<Int64>(info.Holder());
   uint64_t value;
   if (info[0]->IsNumber()) {
-    value = obj->mValue + info[0]->IntegerValue();
+    value = obj->mValue + Nan::To<int64_t>(info[0]).ToChecked();
   } else if (info[0]->IsObject()) {
-    Int64* otherObj = ObjectWrap::Unwrap<Int64>(info[0]->ToObject());
+    Int64* otherObj = ObjectWrap::Unwrap<Int64>(Nan::To<Object>(info[0]).ToLocalChecked());
     value = obj->mValue + otherObj->mValue;
   } else {
     Nan::ThrowTypeError("Object or number expected");
@@ -358,9 +356,9 @@ NAN_METHOD(Int64::Sub) {
   Int64* obj = ObjectWrap::Unwrap<Int64>(info.Holder());
   uint64_t value;
   if (info[0]->IsNumber()) {
-    value = obj->mValue - info[0]->IntegerValue();
+    value = obj->mValue - Nan::To<int64_t>(info[0]).ToChecked();
   } else if (info[0]->IsObject()) {
-    Int64* otherObj = ObjectWrap::Unwrap<Int64>(info[0]->ToObject());
+    Int64* otherObj = ObjectWrap::Unwrap<Int64>(Nan::To<Object>(info[0]).ToLocalChecked());
     value = obj->mValue - otherObj->mValue;
   } else {
     Nan::ThrowTypeError("Object or number expected");
